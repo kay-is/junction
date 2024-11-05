@@ -1,0 +1,4 @@
+{
+  "bundler": "turbo",
+  "outputDirectory": "build"
+}

@@ -345,7 +345,7 @@
         await window.arweaveWallet.connect(Junction.requiredPermissions)
         const amount = button.getAttribute('data-amount')
         await qarToken.transfer('{{paymentAddress}}', amount)
-        await tracker.track('tip', value / 1000000000000)
+        await tracker.track('tip', 'page', amount / 1000000000000)
       })
     })
   }

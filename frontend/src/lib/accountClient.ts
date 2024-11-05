@@ -82,7 +82,7 @@ export type AccountInfo = {
   ArnsNames: Record<string, string>
   AvatarImages: Record<string, AvatarImage>
   Members: Record<string, string>
-  Analytics: Record<string, Record<string, number>>
+  Analytics: Record<string, Record<string, Record<string, number>>>
 }
 
 export const loadInfo = async (processId: string): Promise<AccountInfo> => {

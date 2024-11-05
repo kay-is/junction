@@ -87,7 +87,8 @@ class Account {
     PaymentAddresses: {},
     ArnsNames: {},
     AvatarImages: {},
-    Members: {}
+    Members: {},
+    Analytics: {}
   })
   loading = $state(false)
 

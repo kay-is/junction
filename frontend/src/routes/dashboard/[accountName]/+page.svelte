@@ -13,10 +13,15 @@
     Card,
     Fileupload,
     Heading,
+    Helper,
     P,
     Button,
     ButtonGroup,
-    Input
+    Input,
+    Table,
+    TableBody,
+    TableBodyRow,
+    TableBodyCell
   } from 'flowbite-svelte'
 
   const accountName = document.location.pathname.split('/').pop()
@@ -24,7 +29,7 @@
     if (accountName) AppState.account.load(accountName)
   })
 
-  let activeTab: 'pages' | 'images' | 'arns' | 'payment' | 'members' = $state(
+  let activeTab: 'analytics' | 'pages' | 'images' | 'arns' | 'payment' | 'members' = $state(
     (sessionStorage.getItem('currentAccountPage') as typeof activeTab) ?? 'pages'
   )
   $effect(() => {
@@ -104,26 +109,72 @@
   const removeAvatarImage = (imageId: string) => async () => {
     await AppState.account.removeAvatarImage(imageId)
   }
+
+  const analytics = $derived(AppState.account.info.Analytics)
 </script>
 
 <div class="mx-auto max-w-4xl px-5 pt-5">
   <Breadcrumb aria-label="Default breadcrumb example">
-    <BreadcrumbItem href="/" home>Home</BreadcrumbItem>
+    <Button
+      outline
+      size="xs"
+      onclick={async () => {
+        await AppState.wallet.disconnect()
+        goto('/')
+      }}>Log Out</Button
+    >
     <BreadcrumbItem>Account</BreadcrumbItem>
+    {#if AppState.account.status === 'empty'}
+      <Badge color="grey">empty</Badge>
+    {:else if AppState.account.status === 'spawning'}
+      <Badge color="red">spawning</Badge>
+    {:else if AppState.account.status === 'initializing'}
+      <Badge color="yellow">initializing</Badge>
+    {/if}
   </Breadcrumb>
 
-  {#if AppState.account.status === 'empty'}
-    <Badge color="grey">empty</Badge>
-  {:else if AppState.account.status === 'spawning'}
-    <Badge color="red">spawning</Badge>
-  {:else if AppState.account.status === 'initializing'}
-    <Badge color="yellow">initializing</Badge>
-  {/if}
+  {#if AppState.account.status !== 'ready'}
+    <P class="mt-5">Please wait while your account gets initialized.</P>
+  {:else if activeTab === 'analytics'}
+    <Heading tag="h2" class="mb-5">Analytics</Heading>
+    <P>Track your page views and clicks.</P>
 
-  {#if !AppState.account.info}
-    <P>Loading...</P>
+    {#each Object.keys(AppState.account.info.Pages) as pageId}
+      <Heading tag="h4" class="mb-2"
+        ><A
+          href="https://ar-io.net/{AppState.account.info.Pages[pageId].PublicationTxId}"
+          target="_blank">{AppState.account.info.Pages[pageId].Title}</A
+        ></Heading
+      >
+      {#if !analytics[pageId]}
+        <P>Nobody visited this page yet.</P>
+      {:else}
+        <Table striped hoverable>
+          <TableBody>
+            {#each Object.entries(analytics[pageId]) as [element, operations]}
+              {#each Object.entries(operations) as [operation, value]}
+                <TableBodyRow>
+                  <TableBodyCell>{element}</TableBodyCell>
+                  <TableBodyCell
+                    >{value}
+                    {operation === 'tip'
+                      ? 'qAR'
+                      : operation === 'view'
+                        ? 'Views'
+                        : operation === 'click'
+                          ? 'Clicks'
+                          : ''}</TableBodyCell
+                  >
+                </TableBodyRow>
+              {/each}
+            {/each}
+          </TableBody>
+        </Table>
+      {/if}
+    {/each}
   {:else if activeTab === 'pages'}
     <Heading tag="h2" class="mb-5">Pages</Heading>
+
     <P class="mb-2">Create pages to share your links with the world.</P>
     <Button onclick={AppState.account.createPage} class="mb-5 w-full" color="primary" size="lg">
       Create Page
@@ -155,10 +206,7 @@
     {/each}
   {:else if activeTab === 'arns'}
     <Heading tag="h2" class="mb-5">ArNS</Heading>
-    <P class="mb-2"
-      >Add your ArNS names so you can assign them to pages to make them easier to share.</P
-    >
-    <P class="mb-2">Don't have an ArNS name? Get one <A href="https://arns.app/">here</A>!</P>
+    <P class="mb-2">Add your ArNS names to make your pages easier to share.</P>
     <form onsubmit={addArnsName}>
       {#if arnsError}
         <Alert color="red" class="mb-2">{arnsError}</Alert>
@@ -169,8 +217,10 @@
         placeholder="Enter ArNS Name..."
         required
         disabled={AppState.account.loading}
-        class="mb-2"
       />
+      <Helper class="mb-2 text-xs"
+        >Don't have an ArNS name? Buy one <A href="https://arns.app/">here</A>!</Helper
+      >
       <Button
         type="submit"
         size="lg"
@@ -225,11 +275,15 @@
       />
       <Fileupload
         bind:files={avatarImageFiles}
-        class="mb-2"
         accept="image/*"
         required
         disabled={AppState.account.loading}
       />
+      <Helper class="mb-2 text-xs"
+        >Uploads under 100KB are free. Otherwise, learn how to get Turbo Credits <A
+          href="https://www.youtube.com/watch?v=H3GuC033w5o">this video</A
+        >!</Helper
+      >
       <Button
         type="submit"
         size="lg"
@@ -242,7 +296,9 @@
       {#each Object.entries(AppState.account.info.AvatarImages) as [imageId, image]}
         <Card img="https://ar-io.dev/{image.TxId}">
           <h5 class="mb-2 text-xl">Title: {image.Title}</h5>
-          <Button size="lg" outline color="red" class="w-full">Remove</Button>
+          <Button onclick={removeAvatarImage(imageId)} size="lg" outline color="red" class="w-full"
+            >Remove</Button
+          >
         </Card>
       {/each}
     </div>
@@ -300,6 +356,7 @@
 </div>
 
 <BottomNav classInner="grid-cols-6">
+  <BottomNavItem onclick={() => (activeTab = 'analytics')} btnName="Analytics" />
   <BottomNavItem
     onclick={() => (activeTab = 'pages')}
     btnName={`Pages (${Object.values(AppState.account.info.Pages).length})`}
@@ -319,12 +376,5 @@
   <BottomNavItem
     onclick={() => (activeTab = 'members')}
     btnName={`Members (${Object.values(AppState.account.info.Members).length})`}
-  />
-  <BottomNavItem
-    onclick={async () => {
-      await AppState.wallet.disconnect()
-      goto('/')
-    }}
-    btnName="Logout"
   />
 </BottomNav>

@@ -250,12 +250,11 @@ Handlers.add("removeMember",
   end)
 )
 
-Send({ Target = Owner, Action = "Account-Ready", Status = "Success" })
 
 ---------- Analytics Management ----------
 
-Handlers.add("analytics",
-  { Action = "Analytics" },
+Handlers.add("track",
+  { Action = "Track" },
   function(message)
     if not message.Tags.Operation then
       return message.reply({ Status = "Error", Error = "Operation is required" })
@@ -293,3 +292,5 @@ Handlers.add("analytics",
         [message.Tags.Element][message.Tags.Operation] + tonumber(message.Tags.Value)
   end
 )
+
+Send({ Target = Owner, Action = "Account-Ready", Status = "Success" })

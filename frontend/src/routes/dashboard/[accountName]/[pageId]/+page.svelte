@@ -3,6 +3,7 @@
   import AppState from '$lib/appState.svelte'
   import type { Page } from '$lib/accountClient'
   import {
+    Helper,
     Badge,
     Breadcrumb,
     BreadcrumbItem,
@@ -16,6 +17,7 @@
     Select,
     Textarea
   } from 'flowbite-svelte'
+  import { goto } from '$app/navigation'
 
   const templates = [
     { value: 1, name: 'Minimalist' },
@@ -92,7 +94,14 @@
 
 <div class="mx-auto max-w-4xl px-5 pt-5">
   <Breadcrumb aria-label="Default breadcrumb">
-    <BreadcrumbItem href="/" home>Home</BreadcrumbItem>
+    <Button
+      outline
+      size="xs"
+      onclick={async () => {
+        await AppState.wallet.disconnect()
+        goto('/')
+      }}>Log Out</Button
+    >
     <BreadcrumbItem href={`/dashboard/${accountName}`}>Account</BreadcrumbItem>
     <BreadcrumbItem>Page</BreadcrumbItem>
   </Breadcrumb>
@@ -112,24 +121,26 @@
 
   {#if page.PublicationTxId}
     <P class="mb-2 text-lg">
-      Publication URL:
+      <b>Publication URLs:</b>
+      <br />
       {#if page.Undername}
-        <a
+        ArNS: <a
           href={`https://${page.Undername + '_' + page.ArnsName}.ar.io`}
           target="_blank"
           class="underline"
         >
-          {`https://${page.Undername + '_' + page.ArnsName}.ar.io`}
-        </a>
+          {`${page.Undername + '_' + page.ArnsName}.ar.io`}
+        </a> <span class="text-xs">(Can take ~15 minutes to update.)</span>
       {:else if page.ArnsName}
         <a href={`https://${page.ArnsName}.ar.io`} target="_blank" class="underline">
-          {`https://${page.ArnsName}.ar.io`}
-        </a>
-      {:else}
-        <a href={`https://ar-io.dev/${page.PublicationTxId}`} target="_blank" class="underline">
-          ar-io.dev/{page.PublicationTxId}
-        </a>
+          {`${page.ArnsName}.ar.io`}
+        </a> <span class="text-xs">(Can take ~15 minutes to update.)</span>
       {/if}
+      <br />
+      Plain:
+      <a href={`https://ar-io.dev/${page.PublicationTxId}`} target="_blank" class="underline">
+        ar-io.dev/{page.PublicationTxId}
+      </a>
     </P>
   {/if}
 
@@ -163,12 +174,13 @@
         <Select
           bind:value={page.PaymentAddress}
           items={Object.entries(AppState.account.info.PaymentAddresses).map(([address, name]) => ({
-            value: name,
-            name: address
+            value: address,
+            name: name
           }))}
           placeholder="Select Payment Address..."
           size="lg"
         />
+        <Helper class="text-sm">Arweave wallet address to receive payments.</Helper>
       </div>
       <div class="mb-2">
         <Label>ArNS Name</Label>
@@ -196,6 +208,10 @@
             class="rounded-l-none"
           />
         </ButtonGroup>
+        <Helper class="text-sm"
+          >Allowed characters: a-z, 0-9, -. Will override existing pages that use the same
+          domain+undername combination.</Helper
+        >
       </div>
       <div class="mb-2">
         <Label>Links</Label>
