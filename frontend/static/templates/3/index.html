@@ -1,0 +1,352 @@
+<!doctype html>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="{{description}}" />
+<link rel="icon" href="data:," />
+<title>{{title}}</title>
+<style>
+  [data-theme='dark'] body,
+  body {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .description,
+  body {
+    color: var(--text-color);
+  }
+  .links,
+  body {
+    display: flex;
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-image: url('https://junction.ar.io/templates/3/permahills-light.jpg');
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      background-image 0.3s;
+    justify-content: center;
+    align-items: center;
+    min-height: 99.9vh;
+    overflow: auto;
+  }
+  :root {
+    --text-color: #000;
+    --button-bg: #888;
+    --button-text: #fff;
+    --button-hover-bg: #666;
+    --star-color: #333;
+    --scrollbar-track: #f0f0f0;
+    --scrollbar-thumb: #888;
+  }
+  [data-theme='dark'] body {
+    background-image: url('https://junction.ar.io/templates/3/permahills-dark.jpg');
+    --text-color: #f0f0f0;
+    --button-bg: #333;
+    --button-hover-bg: #555;
+  }
+  .container {
+    text-align: center;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 400px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+  }
+  [data-theme='dark'] .container {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  .profile-picture {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    border: 5px solid transparent;
+    background: var(--border-gradient);
+    background-clip: border-box;
+    transition:
+      transform 0.3s,
+      border-color 0.3s;
+  }
+  .profile-picture:hover {
+    transform: scale(1.1);
+    border-color: #fafafa;
+  }
+  .username {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+  .description {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  .links {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .button {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border-radius: 5px;
+    transition:
+      background-color 0.3s,
+      transform 0.3s;
+  }
+  .button:hover {
+    background-color: var(--button-hover-bg);
+    transform: scale(1.05);
+  }
+  .mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+  }
+  .slider:before,
+  .star {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .slider:before {
+    content: '';
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: 0.4s;
+  }
+  input:checked + .slider {
+    background-color: #555;
+  }
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+  @media (max-width: 768px) {
+    .container {
+      padding: 30px;
+      width: 75%;
+      max-width: 100%;
+    }
+    .username {
+      font-size: 1.5rem;
+    }
+    .button,
+    .description {
+      font-size: 0.9rem;
+    }
+    .button {
+      padding: 12px 20px;
+    }
+    .profile-picture {
+      width: 90px;
+      height: 90px;
+    }
+  }
+  .star {
+    width: 2px;
+    height: 2px;
+    background: radial-gradient(circle, var(--star-color) 20%, transparent 70%);
+    opacity: 1;
+    z-index: 0;
+    animation: 3s ease-in-out infinite gentleTwinkle;
+  }
+  @keyframes gentleTwinkle {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: brightness(0.8);
+    }
+    50% {
+      transform: scale(1.5);
+      filter: brightness(1.5);
+    }
+  }
+  [data-theme='dark'] {
+    --star-color: #fff;
+    --scrollbar-track: #1a1a1a;
+    --scrollbar-thumb: #555;
+  }
+  body::-webkit-scrollbar {
+    width: 12px;
+  }
+  body::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-track);
+  }
+  body::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 6px;
+    border: 2px solid var(--background-light);
+  }
+  [data-theme='dark'] body::-webkit-scrollbar-thumb {
+    border: 2px solid var(--background-dark);
+  }
+
+  .notips a {
+    color: var(--button-text);
+  }
+
+  .tips button {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    transition:
+      background-color 0.3s,
+      transform 0.3s;
+  }
+  .tips button:hover {
+    background-color: var(--button-hover-bg);
+    transform: scale(1.05);
+  }
+</style>
+
+<div class="container">
+  <div class="mode-toggle">
+    <label class="switch">
+      <input type="checkbox" id="mode-toggle" />
+      <span class="slider round"></span>
+    </label>
+  </div>
+
+  <div class="profile">
+    <img src="{{avatarImageUrl}}" alt="Profile Picture" class="profile-picture" />
+    <h1 class="username">{{title}}</h1>
+    <p class="description">{{description}}</p>
+  </div>
+
+  <p id="notips" class="notips">
+    You want to send a tip? <br /><a target="_blank" href="https://www.arconnect.io/"
+      >Install ArConnect</a
+    >, and <a target="_blank" href="https://bridge.astrousd.com/">get yourself some qAR</a>!
+  </p>
+  <div id="tips" class="tips" hidden>
+    <p>Appreciate the links? Send a tip!</p>
+    <button data-amount="100000000000">0.1 qAR</button>
+    <button data-amount="500000000000">0.5 qAR</button>
+    <button data-amount="1000000000000">1 qAR</button>
+    <button data-amount="10000000000000">10 qAR</button>
+  </div>
+  <br />
+  <div class="links">{{links}}</div>
+</div>
+
+<script>
+  const toggleSwitch = document.getElementById('mode-toggle')
+  const currentTheme = localStorage.getItem('theme') || 'light'
+
+  if (currentTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    toggleSwitch.checked = true
+  }
+
+  toggleSwitch.addEventListener('change', function () {
+    if (this.checked) {
+      document.documentElement.setAttribute('data-theme', 'dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light')
+      localStorage.setItem('theme', 'light')
+    }
+  })
+
+  function createStar() {
+    const star = document.createElement('div')
+    star.classList.add('star')
+
+    const starSize = Math.random() * 3 + 2
+    star.style.width = `${starSize}px`
+    star.style.height = `${starSize}px`
+
+    star.style.top = `${Math.random() * 33}vh`
+    star.style.left = `${Math.random() * 100}vw`
+    star.style.animationDuration = `${Math.random() * 2 + 1}s`
+    document.body.appendChild(star)
+  }
+
+  function generateStars(numStars) {
+    for (let i = 0; i < numStars; i++) {
+      createStar()
+    }
+  }
+
+  window.onload = function () {
+    generateStars(30)
+  }
+</script>
+
+<script src="https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/arweave.js"></script>
+<script type="module">
+  import Junction from 'https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/junction.js'
+
+  if (window.arweaveWallet) {
+    document.getElementById('tips').hidden = false
+    document.getElementById('notips').hidden = true
+  }
+
+  const tracker = await Junction.getTracker('{{accountId}}', '{{pageId}}')
+  await tracker.track('view')
+  const links = [...document.querySelectorAll('a')]
+  links.forEach((link) => {
+    link.addEventListener('click', () => {
+      tracker.track('click', link.href)
+    })
+  })
+
+  if (window.arweaveWallet) {
+    document.getElementById('tips').hidden = false
+    document.getElementById('notips').hidden = true
+
+    const qarToken = await Junction.getToken(
+      window.arweaveWallet,
+      'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8'
+    )
+
+    const tipButtons = [...document.querySelectorAll('button')]
+
+    tipButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        await window.arweaveWallet.connect(Junction.requiredPermissions)
+        const amount = button.getAttribute('data-amount')
+        await qarToken.transfer('{{paymentAddress}}', amount)
+        await tracker.track('tip', value / 1000000000000)
+      })
+    })
+  }
+</script>

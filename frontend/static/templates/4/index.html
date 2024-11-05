@@ -1,0 +1,348 @@
+<!doctype html>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="{{description}}" />
+<link rel="icon" href="data:," />
+<title>{{title}}</title>
+<style>
+  .links,
+  body {
+    display: flex;
+  }
+  .score-counter,
+  body {
+    font-family: 'Press Start 2P', cursive;
+  }
+  body {
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: radial-gradient(circle, #001f3f, #000);
+    color: #fff;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 0;
+  }
+  .falling-pixels {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+  }
+  .pixel {
+    width: 3px;
+    height: 3px;
+    background-color: #0f0;
+    position: absolute;
+    top: -10px;
+    animation: linear infinite fall;
+    opacity: 0.7;
+  }
+  @keyframes fall {
+    0% {
+      transform: translateY(0);
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateY(100vh);
+      opacity: 0;
+    }
+  }
+  .scanlines {
+    background: repeating-linear-gradient(transparent, transparent 2px, rgba(0, 0, 0, 0.1) 3px);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  .arcade-frame {
+    text-align: center;
+    background-color: #151515;
+    padding: 20px;
+    border: 3px solid #f0f;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #f0f;
+    animation: 1.5s infinite alternate glow;
+    max-width: 400px;
+    width: 100%;
+    margin: auto;
+  }
+  .arcade-header {
+    font-size: 2.2rem;
+    color: #0ff;
+    text-shadow:
+      0 0 5px #0ff,
+      0 0 20px #0ff,
+      0 0 30px #0ff;
+    animation: 1s infinite alternate flicker;
+    margin-bottom: 20px;
+  }
+  .profile-picture {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #0f0;
+    margin-bottom: 20px;
+    box-shadow: 0 0 15px #0f0;
+    animation: 4s linear infinite rotate;
+  }
+  .arcade-desc {
+    font-size: 1rem;
+    color: #f0f;
+    text-shadow: 0 0 5px #f0f;
+    animation: 1.5s infinite flash;
+    margin-bottom: 15px;
+    text-align: center;
+    max-width: 100%;
+  }
+  @keyframes flash {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  .links {
+    flex-direction: column;
+    justify-content: center;
+  }
+  .tips button,
+  .button {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1rem;
+    color: #000;
+    background-color: #0ff;
+    border: 2px solid #0f0;
+    border-radius: 10px;
+    transition: transform 0.2s ease-in-out;
+    animation: 2s infinite bounce;
+    box-shadow: 0 0 10px #0f0;
+  }
+
+  .tips button:hover,
+  .button:hover {
+    transform: scale(1.1) rotate(3deg);
+  }
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 10px #f0f;
+    }
+    to {
+      box-shadow: 0 0 20px #0ff;
+    }
+  }
+  @keyframes typewriter {
+    0% {
+      width: 0;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+  @keyframes flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+  @keyframes rotate {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #111;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #f0f;
+    border-radius: 6px;
+    border: 3px solid #0ff;
+  }
+  @media (max-width: 768px) {
+    body {
+      padding: 15px;
+    }
+    .arcade-frame {
+      padding: 15px;
+      width: 90%;
+      max-width: 100%;
+      margin: auto;
+    }
+    .arcade-header {
+      font-size: 1.8rem;
+    }
+    .button {
+      font-size: 0.9rem;
+      padding: 10px 15px;
+    }
+    .profile-picture {
+      width: 60px;
+      height: 60px;
+    }
+    .arcade-desc {
+      font-size: 0.9rem;
+      width: 200px;
+      margin: auto auto 10px;
+    }
+    .score-counter {
+      font-size: 1rem;
+    }
+  }
+  .score-counter {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    color: #f0f;
+    font-size: 1.2rem;
+    z-index: 1000;
+  }
+
+  .emoji {
+    font-size: 2rem;
+  }
+
+  .notips a {
+    color: #fff;
+  }
+</style>
+
+<div class="falling-pixels"></div>
+
+<div class="score-counter">Score: <span id="score">0</span></div>
+<main>
+  <div class="arcade-frame">
+    <h1 class="arcade-header">🎮🎮🎮🎮🎮🎮🎮🎮</h1>
+    <h1 class="arcade-header">{{title}}</h1>
+    <h1 class="arcade-header">🎮🎮🎮🎮🎮🎮🎮🎮</h1>
+    <div class="scanlines">
+      <img
+        src="{{avatarImageUrl}}"
+        alt="Arcade Avatar"
+        class="profile-picture"
+        id="profile-picture"
+      />
+      <p class="arcade-desc">{{description}}</p>
+
+      <p id="notips" class="notips">
+        You want to send a tip? <br /><a target="_blank" href="https://www.arconnect.io/"
+          >Install ArConnect</a
+        >, and <a target="_blank" href="https://bridge.astrousd.com/">get yourself some qAR</a>!
+      </p>
+      <div id="tips" class="tips" hidden>
+        <p>Appreciate the links? Send a tip!</p>
+        <button data-amount="100000000000">
+          <span class="emoji">🙂</span> <br />
+          0.1 qAR
+        </button>
+        <button data-amount="500000000000"><span class="emoji">😃</span> <br />0.5 qAR</button>
+        <button data-amount="1000000000000"><span class="emoji">🤩</span> <br />1 qAR</button>
+        <button data-amount="10000000000000"><span class="emoji">🤑</span> <br />10 qAR</button>
+      </div>
+      <br />
+      <div class="links">{{links}}</div>
+    </div>
+  </div>
+</main>
+<script>
+  const coinSound = new Audio('https://junction.ar.io/templates/4/arcade-click.mp3')
+
+  document.querySelectorAll('.arcade-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      coinSound.play()
+    })
+
+    button.addEventListener('click', () => {
+      document.body.style.transition = 'background-color 0.5s ease-in-out'
+      document.body.style.backgroundColor = '#ff00ff'
+      setTimeout(() => {
+        document.body.style.backgroundColor = '#001f3f'
+      }, 500)
+    })
+  })
+
+  let score = 0
+  document.querySelectorAll('.arcade-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      score += 100
+      document.getElementById('score').textContent = score
+    })
+  })
+
+  function createFallingPixel() {
+    const pixel = document.createElement('div')
+    pixel.classList.add('pixel')
+
+    pixel.style.left = `${Math.random() * 100}vw`
+
+    pixel.style.animationDuration = `${Math.random() * 3 + 2}s`
+
+    document.querySelector('.falling-pixels').appendChild(pixel)
+
+    setTimeout(() => {
+      pixel.remove()
+    }, 10000)
+  }
+
+  setInterval(createFallingPixel, 100)
+</script>
+
+<script src="https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/arweave.js"></script>
+<script type="module">
+  import Junction from 'https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/junction.js'
+
+  if (window.arweaveWallet) {
+    document.getElementById('tips').hidden = false
+    document.getElementById('notips').hidden = true
+  }
+
+  const tracker = await Junction.getTracker('{{accountId}}', '{{pageId}}')
+  await tracker.track('view')
+  const links = [...document.querySelectorAll('a')]
+  links.forEach((link) => {
+    link.addEventListener('click', () => {
+      tracker.track('click', link.href)
+    })
+  })
+
+  if (window.arweaveWallet) {
+    const qarToken = await Junction.getToken(
+      window.arweaveWallet,
+      'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8'
+    )
+
+    const tipButtons = [...document.querySelectorAll('button')]
+
+    tipButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        await window.arweaveWallet.connect(Junction.requiredPermissions)
+        const amount = button.getAttribute('data-amount')
+        await qarToken.transfer('{{paymentAddress}}', amount)
+        await tracker.track('tip', value / 1000000000000)
+      })
+    })
+  }
+</script>

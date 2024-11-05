@@ -1,0 +1,175 @@
+<!doctype html>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="{{description}}" />
+<link rel="icon" href="data:," />
+
+<title>{{title}}</title>
+<style>
+  .tips button {
+    border: none;
+    border-radius: 6px;
+    background: #333;
+    color: #fff;
+    padding: 10px;
+  }
+  .profile-picture,
+  p {
+    margin-bottom: 20px;
+  }
+  .links,
+  body {
+    display: flex;
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+    color: #333;
+  }
+  .container {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+  }
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  .button,
+  p {
+    font-size: 1rem;
+  }
+  p {
+    color: #666;
+  }
+  .links {
+    flex-direction: column;
+  }
+  .button {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #333;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  .button:hover {
+    background-color: #555;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f4f4f4;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 10px;
+    border: 2px solid #f4f4f4;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+  }
+  @media (max-width: 768px) {
+    .container {
+      padding: 15px;
+    }
+    h1 {
+      font-size: 1.2rem;
+    }
+    .button,
+    p {
+      font-size: 0.9rem;
+    }
+    .button {
+      padding: 8px 16px;
+    }
+  }
+</style>
+
+<main>
+  <div class="container">
+    <img
+      src="{{avatarImageUrl}}"
+      alt="Profile Picture"
+      class="profile-picture"
+      id="profile-picture"
+    />
+    <h1>{{title}}</h1>
+    <p>{{description}}</p>
+    <p id="notips">
+      You want to send a tip? <br /><a target="_blank" href="https://www.arconnect.io/"
+        >Install ArConnect</a
+      >, and <a target="_blank" href="https://bridge.astrousd.com/">get yourself some qAR</a>!
+    </p>
+    <div id="tips" class="tips" hidden>
+      <p>Appreciate the links? Send a tip!</p>
+      <button data-amount="100000000000">0.1 qAR</button>
+      <button data-amount="500000000000">0.5 qAR</button>
+      <button data-amount="1000000000000">1 qAR</button>
+      <button data-amount="10000000000000">10 qAR</button>
+    </div>
+    <br />
+    <div class="links">{{links}}</div>
+  </div>
+  <br />
+  <p>Generated with <a href="https://junction.ar.io">Junction</a>.</p>
+</main>
+
+<script src="https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/arweave.js"></script>
+<script type="module">
+  import Junction from 'https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/junction.js'
+
+  if (window.arweaveWallet) {
+    document.getElementById('tips').hidden = false
+    document.getElementById('notips').hidden = true
+  }
+
+  const tracker = await Junction.getTracker('{{accountId}}', '{{pageId}}')
+  await tracker.track('view')
+  const links = [...document.querySelectorAll('a')]
+  links.forEach((link) => {
+    link.addEventListener('click', () => {
+      tracker.track('click', link.href)
+    })
+  })
+
+  if (window.arweaveWallet) {
+    const qarToken = await Junction.getToken(
+      window.arweaveWallet,
+      'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8'
+    )
+
+    const tipButtons = [...document.querySelectorAll('button')]
+
+    tipButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        await window.arweaveWallet.connect(Junction.requiredPermissions)
+        const amount = button.getAttribute('data-amount')
+        await qarToken.transfer('{{paymentAddress}}', amount)
+        await tracker.track('tip', value / 1000000000000)
+      })
+    })
+  }
+</script>

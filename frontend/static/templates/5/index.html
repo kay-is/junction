@@ -1,0 +1,284 @@
+<!doctype html>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="{{description}}" />
+<link rel="icon" href="data:," />
+<title>{{title}}</title>
+<style>
+  .links,
+  body {
+    display: flex;
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff7eb9, #7afcff);
+    font-family: Arial, sans-serif;
+    color: #333;
+    overflow-x: hidden;
+  }
+  @media (max-width: 768px) {
+    body {
+      flex-direction: column;
+      padding: 20px;
+    }
+    .gradient-container {
+      width: 100%;
+      padding: 10px;
+    }
+    .button {
+      padding: 10px 15px;
+    }
+  }
+  .gradient-container {
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+  }
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  .gradient-header {
+    font-size: 2rem;
+    background: linear-gradient(90deg, #ff7eb9, #7afcff);
+    -webkit-background-clip: text;
+    color: transparent;
+    margin-bottom: 15px;
+  }
+  .gradient-desc {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 25px;
+  }
+  .links {
+    flex-direction: column;
+  }
+  .tips button,
+  .button {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 12px;
+    text-decoration: none;
+    font-size: 1rem;
+    color: #fff;
+    background: linear-gradient(135deg, #ff7eb9, #7afcff);
+    border-radius: 30px;
+    transition:
+      background 0.5s,
+      transform 0.3s,
+      content 0.5s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .tips button:hover,
+  .button:hover {
+    background: linear-gradient(135deg, #ff65a3, #50caff);
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+  .customizer {
+    margin-top: 40px;
+    text-align: center;
+  }
+  .customizer input {
+    margin: 5px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  #apply-gradient {
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #apply-gradient:hover {
+    background: #555;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-gradient, linear-gradient(135deg, #ff7eb9, #7afcff));
+    border-radius: 5px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-gradient, linear-gradient(135deg, #ff65a3, #50caff));
+  }
+  input[type='color'] {
+    border: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 10px;
+    padding: 0;
+    background: 0 0;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  input[type='color']::-webkit-color-swatch {
+    border: none;
+  }
+  input[type='color']::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .emoji {
+    font-size: 2rem;
+  }
+
+  .tips button {
+    border: none;
+    margin-right: 6px;
+  }
+</style>
+
+<main>
+  <div class="gradient-container">
+    <img
+      src="{{avatarImageUrl}}"
+      alt="Profile Avatar"
+      class="profile-picture"
+      id="profile-picture"
+    />
+    <h1 class="gradient-header">{{title}}</h1>
+    <p class="gradient-desc">{{description}}</p>
+    <p id="notips" class="notips">
+      You want to send a tip? <br /><a target="_blank" href="https://www.arconnect.io/"
+        >Install ArConnect</a
+      >, and <a target="_blank" href="https://bridge.astrousd.com/">get yourself some qAR</a>!
+    </p>
+    <div id="tips" class="tips" hidden>
+      <p>Appreciate the links? Send a tip!</p>
+      <button data-amount="100000000000">
+        <span class="emoji">🙂</span> <br />
+        0.1 qAR
+      </button>
+      <button data-amount="500000000000"><span class="emoji">😊</span> <br />0.5 qAR</button>
+      <button data-amount="1000000000000"><span class="emoji">🥰</span> <br />1 qAR</button>
+      <button data-amount="10000000000000"><span class="emoji">😍</span> <br />10 qAR</button>
+    </div>
+    <br />
+    <div class="links">{{links}}</div>
+  </div>
+
+  <div class="customizer">
+    <h2>Customize Your Gradient</h2>
+    <input type="color" id="color1" value="#ff7eb9" />
+    <input type="color" id="color2" value="#7afcff" />
+    <button id="apply-gradient">Apply Gradient</button>
+  </div>
+</main>
+<script>
+  document.querySelectorAll('.gradient-button').forEach((button) => {
+    const defaultText = button.getAttribute('data-default')
+    const hoverText = button.getAttribute('data-hover')
+
+    button.addEventListener('mouseover', function () {
+      this.textContent = hoverText
+    })
+
+    button.addEventListener('mouseout', function () {
+      this.textContent = defaultText
+    })
+  })
+
+  window.addEventListener('load', function () {
+    const color1Picker = document.getElementById('color1')
+    const color2Picker = document.getElementById('color2')
+
+    color1Picker.value = '#ff7eb9'
+    color2Picker.value = '#7afcff'
+
+    document.body.style.background = `linear-gradient(135deg, #ff7eb9, #7afcff)`
+
+    document.querySelectorAll('.gradient-button').forEach((button) => {
+      button.style.background = `linear-gradient(135deg, #ff7eb9, #7afcff)`
+    })
+
+    const header = document.querySelector('.gradient-header')
+    header.style.backgroundImage = `linear-gradient(90deg, #ff7eb9, #7afcff)`
+    header.style.webkitBackgroundClip = 'text'
+    header.style.color = 'transparent'
+  })
+
+  document.getElementById('apply-gradient').addEventListener('click', function () {
+    const color1 = document.getElementById('color1').value
+    const color2 = document.getElementById('color2').value
+
+    document.body.style.background = `linear-gradient(135deg, ${color1}, ${color2})`
+
+    document.querySelectorAll('.gradient-button').forEach((button) => {
+      button.style.background = `linear-gradient(135deg, ${color1}, ${color2})`
+    })
+
+    const header = document.querySelector('.gradient-header')
+    header.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`
+    header.style.webkitBackgroundClip = 'text'
+    header.style.color = 'transparent'
+
+    document.documentElement.style.setProperty(
+      '--scrollbar-gradient',
+      `linear-gradient(135deg, ${color1}, ${color2})`
+    )
+  })
+</script>
+
+<script src="https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/arweave.js"></script>
+<script type="module">
+  import Junction from 'https://2pd5vfsp7uqaure7gv4vv4x7reuvltwtgkgohpby7dvhxguaxukq.arweave.net/08falk_9IApEnzV5WvL_iSlVztMyjOO8OPjqe5qAvRU/junction.js'
+
+  if (window.arweaveWallet) {
+    document.getElementById('tips').hidden = false
+    document.getElementById('notips').hidden = true
+  }
+
+  const tracker = await Junction.getTracker('{{accountId}}', '{{pageId}}')
+  await tracker.track('view')
+  const links = [...document.querySelectorAll('a')]
+  links.forEach((link) => {
+    link.addEventListener('click', () => {
+      tracker.track('click', link.href)
+    })
+  })
+
+  if (window.arweaveWallet) {
+    const qarToken = await Junction.getToken(
+      window.arweaveWallet,
+      'NG-0lVX882MG5nhARrSzyprEK6ejonHpdUmaaMPsHE8'
+    )
+
+    const tipButtons = [...document.querySelectorAll('button')]
+
+    tipButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        await window.arweaveWallet.connect(Junction.requiredPermissions)
+        const amount = button.getAttribute('data-amount')
+        await qarToken.transfer('{{paymentAddress}}', amount)
+        await tracker.track('tip', value / 1000000000000)
+      })
+    })
+  }
+</script>

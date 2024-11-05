@@ -1,0 +1,16 @@
+{
+  "name": "junction-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start:aos": "aos junction-registry --wallet wallet.json",
+    "update:registry": "node scripts/update-registry.mjs",
+    "update:account-code": "node scripts/update-account-code.mjs"
+  },
+  "author": "K",
+  "license": "AGPL-3.0",
+  "description": "",
+  "dependencies": {
+    "@permaweb/aoconnect": "^0.0.59"
+  }
+}
