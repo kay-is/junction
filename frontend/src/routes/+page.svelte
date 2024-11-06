@@ -68,11 +68,16 @@
 
 <div class="mx-auto mt-20 max-w-4xl px-5">
   <Heading tag="h1" class="mb-4 text-center">JUNCTION</Heading>
-  <P class="mb-6 text-center text-lg sm:px-16 lg:text-xl xl:px-48 dark:text-gray-400">
+  <P class="mb-6 text-center text-xl sm:px-16 lg:text-xl xl:px-48 dark:text-gray-400">
     Share your links and get paid!
   </P>
 
-  <ButtonGroup class="w-full">
+  <P class="mb-2 mt-10 text-lg">Are you a content creator who wants to monitize their work?</P>
+  <P class="mb-2 text-lg">Do you need a quick way to share links and fear censorship?</P>
+  <P class="mb-2 text-lg">Try out Junction: The permanent link-site builder on the Permaweb!</P>
+  <P class="mb-2 text-lg">...crypto wallet optional.</P>
+
+  <ButtonGroup class="mt-20 w-full">
     <Button disabled={loginLoading} onclick={login} size="lg" color="primary" class="mb-5 w-full">
       Log in
     </Button>
@@ -85,6 +90,96 @@
       Sign Up
     </Button>
   </ButtonGroup>
+
+  <div class="mt-20 flex">
+    <div class="flex-col pr-5 pt-5">
+      <Heading tag="h3" class="mb-4">Login Without Installing a Wallet</Heading>
+      <P class="mb-2 text-lg">
+        If you don't have an Arweave wallet, use Web2 authentication providers or your email to get
+        started.
+      </P>
+    </div>
+    <div>
+      <img src="/images/walletless.png" alt="walletless" class="max-w-lg rounded-lg border" />
+    </div>
+  </div>
+
+  <div class="mt-20 flex">
+    <div>
+      <img src="/images/analytics.png" alt="Analyitics" class="max-w-lg rounded-lg border" />
+    </div>
+    <div class="flex-col pl-5 pt-5">
+      <Heading tag="h3" class="mb-4">AO Powered Web Analytics</Heading>
+      <P class="mb-2 text-lg">
+        Each view, click, and tip is an message to your account process on AO, that will aggregate
+        user interactions.
+      </P>
+      <P class="mb-2 text-lg">Get the data that shows which links your users love.</P>
+      <P class="mb-2 text-lg">...and what they think they're worth!</P>
+    </div>
+  </div>
+
+  <div class="mt-20 flex justify-between">
+    <div class="flex-col pr-5 pt-5">
+      <Heading tag="h3" class="mb-4">Astro Powered Tipping</Heading>
+      <P class="mb-2 text-lg">Let your users show their appreciation.</P>
+      <P class="mb-2 text-lg">Receive tips in Quantum Arweave, the AR token on AO.</P>
+    </div>
+    <div>
+      <img src="/images/tipping.png" alt="Tipping" class="max-w-lg rounded-lg border" />
+    </div>
+  </div>
+
+  <Heading tag="h2" class="mb-4 mt-20 ">Five Themes Available</Heading>
+  <div class="flex">
+    <div>
+      <img src="/images/minimalism.png" alt="minimalism" class="max-w-lg rounded-lg border" />
+    </div>
+    <div class="flex-col pl-5 pt-5">
+      <Heading tag="h3" class="mb-4">Minimalism</Heading>
+      <P class="mb-2 text-lg">Minimal styling, for a more mature look.</P>
+    </div>
+  </div>
+  <div class="mt-10 flex justify-between">
+    <div class="flex-col pr-5 pt-5">
+      <Heading tag="h3" class="mb-4">Retro-Arcade</Heading>
+      <P class="mb-2 text-lg">For all the gamers out there.</P>
+    </div>
+    <div>
+      <img src="/images/retroarcade.png" alt="retroarcade" class="max-w-lg rounded-lg border" />
+    </div>
+  </div>
+  <div class="mt-10 flex">
+    <div>
+      <img src="/images/permahills.png" alt="permahills" class="max-w-lg rounded-lg border" />
+    </div>
+    <div class="flex-col pl-5 pt-5">
+      <Heading tag="h3" class="mb-4">Permahills</Heading>
+      <P class="mb-2 text-lg">A little bit dreamy.</P>
+    </div>
+  </div>
+  <div class="mt-10 flex justify-between">
+    <div class="flex-col pl-5 pt-5">
+      <Heading tag="h3" class="mb-4">Softgradient</Heading>
+      <P class="mb-2 text-lg">With a touch of rose in the sky.</P>
+    </div>
+    <div>
+      <img src="/images/softgradient.png" alt="softgradient" class="max-w-lg rounded-lg border" />
+    </div>
+  </div>
+  <div class="mb-10 mt-10 flex">
+    <div>
+      <img src="/images/brutalism.png" alt="brutalism" class="max-w-lg rounded-lg border" />
+    </div>
+    <div class="flex-col pl-5 pt-5">
+      <Heading tag="h3" class="mb-4">Brutalism</Heading>
+      <P class="mb-2 text-lg">Art.</P>
+    </div>
+  </div>
+
+  <Heading tag="h3" class="mb-4">Still Not Convinced?</Heading>
+  <P class="mb-20 text-lg">Okay 🤷‍♂️</P>
+
   <Modal title="Create Account" bind:open={showSignUpModal} size="xs" outsideclose class="w-full">
     {#if error !== ''}
       <Alert color="red" class="mb-5">{error}</Alert>
