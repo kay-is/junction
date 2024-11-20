@@ -1,0 +1,33 @@
+{
+  "type": "module",
+  "name": "@kay-is/junction",
+  "version": "1.0.0",
+  "description": "The Junction tracking SDK",
+  "main": "dist/index.js",
+  "tsup": {
+    "entry": [
+      "modules/index.ts"
+    ],
+    "clean": true,
+    "minify": true,
+    "format": "iife"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup"
+  },
+  "author": "Kay Plößer",
+  "license": "MIT",
+  "devDependencies": {
+    "@parcel/packager-ts": "^2.13.0",
+    "@parcel/transformer-typescript-types": "^2.13.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@ar.io/arbundles": "^1.0.1",
+    "@permaweb/aoconnect": "^0.0.61",
+    "arweave": "^1.15.5",
+    "axios": "^1.7.7"
+  }
+}

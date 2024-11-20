@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo "Building modules:"
+
+mkdir -p "build"
+
+DISPATCHER_CODE_TXID=$(cat upload-ids/dispatcher)
+ACCOUNT_CODE_TXID=$(cat upload-ids/account)
+
+for module in $(ls modules)
+do
+  cyan -s "modules/$module/" build
+
+  sed -i "s/_DISPATCHER_CODE_TXID_/$DISPATCHER_CODE_TXID/g" "tmp/process.lua"
+  sed -i "s/_ACCOUNT_CODE_TXID_/$ACCOUNT_CODE_TXID/g" "tmp/process.lua"
+
+  mv "tmp/process.lua" "build/$module.lua"
+
+  echo "-> build/$module.lua"
+done
+
+echo "---------------------------------"
+echo "Run scripts/upload-code <module> to upload changed modules to Arweave"

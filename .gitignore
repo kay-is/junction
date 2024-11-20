@@ -1,4 +1,7 @@
+backend/build
 test
 node_modules
 wallet.json
+*-wallet.json
 process-id
+tmp

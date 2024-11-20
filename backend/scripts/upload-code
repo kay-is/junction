@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <module-name>"
+  exit 1
+fi
+
+fileName="build/$1.lua"
+
+if [ ! -s $fileName ]; then
+  echo "File not found: $fileName"
+  exit 1
+fi
+
+scripts/build
+
+result=$(npx arx upload $fileName -w dev-wallet.json -t arweave)
+txId=${result##*/}
+
+mkdir -p "upload-ids"
+echo $txId > upload-ids/$1
+
+echo "Uploaded $fileName to $txId"
