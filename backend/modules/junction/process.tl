@@ -20,6 +20,9 @@ AccountCodeTxId = "_ACCOUNT_CODE_TXID_"
 global DispatcherCodeTxId: string
 DispatcherCodeTxId = "_DISPATCHER_CODE_TXID_"
 
+global ReportCodeTxId: string
+ReportCodeTxId = "_REPORT_CODE_TXID_"
+
 local enum AccountStatus
   "pending"
   "ready"
@@ -136,7 +139,7 @@ Handlers.add(
 
     newAccount.id = spawnReply.Process
 
-    log("Tell dispatcher about account...")
+    log("Telling dispatcher about account...")
 
     ao.send({
       Target = dispatcherSpawnReply.Process,
@@ -284,6 +287,42 @@ global Helpers = {
     print(reply.Data)
   end,
 
+  addReport = function(accountName: string, reportName: string): ReceivedMessage
+    local account: Account 
+    for _, a in ipairs(Accounts) do
+      if a.name == accountName then
+        account = a
+        break
+      end
+    end
+
+    if not account then
+      return print("[Helper.addReport] Account not found.")
+    end
+
+    print("[Helper.addReport] Sending message...")
+    return ao.send({
+      Target = account.id,
+      Tags = {
+        Action = "Add-Report",
+        Name = reportName,
+        CodeTxId = ReportCodeTxId,
+        RecordsMaxAge = "" .. (1000 * 60 * 60 * 24 * 90) -- 90 days 
+      }
+    }).receive()
+  end,
+
+  getReportRecords = function(processId: string): ReceivedMessage
+    print("[Helper.getReportRecords] Sending message...")
+    local reply = ao.send({
+      Target = processId,
+      Tags = {Action = "Get-Records", Start = "0", Stop = "" .. os.time()}
+    }).receive()
+
+    print("[Helper.getReportRecords] Received records:")
+    print(reply.Data)
+  end,
+
   sendExampleEvent = function(dispatcherId:string) 
     print("[Helper.sendEvent] Sending message...")
     ao.send({
@@ -294,12 +333,17 @@ global Helpers = {
         ad = ao.id,
         ev = "pv", 
         url = "https://example.com/",
+        eth = "MetaMask",
+        sol = "Phantom",
+        ar ="ArConnect",
+        ["j-lt"] = "" .. 100
       },
     })
   end
 }
 print("AccountCodeTxId: " .. AccountCodeTxId)
 print("DispatcherCodeTxId: " .. DispatcherCodeTxId)
+print("ReportCodeTxId: " .. ReportCodeTxId)
 
 print("Helpers:")
 print(Helpers)

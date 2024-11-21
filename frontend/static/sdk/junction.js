@@ -1,5 +1,5 @@
 import './arweave.js'
-import { dryrun, message } from './aoconnect.js'
+import { message } from './aoconnect.js'
 import { createData, ArweaveSigner } from './arbundles.js'
 
 export class Junction {
@@ -13,17 +13,26 @@ export class Junction {
     this.#trackUrlHashes = trackUrlHashes
   }
 
+  static log = (...args) => console.log('[Junction]', ...args)
+
   static async initialize(config) {
-    let signer = config.signer
+    if (!config.debug) Junction.log = () => {}
+
+    let { signer } = config
+
+    Junction.log('Initializing:', config)
 
     if (!signer) {
       let wallet
       const storedWallet = localStorage.getItem('junctionWallet')
 
-      if (storedWallet) wallet = JSON.parse(storedWallet)
-      else {
+      if (storedWallet) {
+        Junction.log('Found stored wallet.')
+        wallet = JSON.parse(storedWallet)
+      } else {
         wallet = await Arweave.init(config.arweaveConfig ?? {}).wallets.generate()
         localStorage.setItem('junctionWallet', JSON.stringify(wallet))
+        Junction.log('Generated new wallet.')
       }
 
       const arweaveSigner = new ArweaveSigner(wallet)
@@ -38,28 +47,24 @@ export class Junction {
       }
     }
 
-    let dispatcherId
-    try {
-      const result = await dryrun({
-        process: config.accountId,
-        tags: [{ name: 'Action', value: 'Info' }]
-      })
-
-      dispatcherId = JSON.parse(result.Messages.pop().Data).DispatcherId
-    } catch (e) {
-      console.error('[Junction] Failed to load dispatcher ID from AO.')
-    }
-
-    return new Junction(signer, dispatcherId, config.trackUrlHashes ?? false)
+    return new Junction(signer, config.dispatcherId, config.trackUrlHashes ?? false)
   }
 
   #getClientInfo = async () => {
     const info = []
+
+    const canonicalLinkTag = document.querySelector('link[rel="canonical"]')
+    let url = canonicalLinkTag && canonicalLinkTag.getAttribute('href')
+
+    if (!url) {
+      url = this.#trackUrlHashes ? window.location.href : window.location.href.replace(/#.*$/, '')
+    }
+
+    info.push({ name: 'url', value: url })
+
     info.push({ name: 'ua', value: navigator.userAgent })
     info.push({ name: 'la', value: navigator.language })
     if (navigator.cookieEnabled) info.push({ name: 'co', value: '1' })
-    info.push({ name: 'wi', value: '' + screen.width })
-    info.push({ name: 'he', value: '' + screen.height })
     const timezoneOffset = new Date().getTimezoneOffset()
     if (timezoneOffset)
       info.push({
@@ -78,7 +83,7 @@ export class Junction {
         info.push({ name: 'ar-con', value: '1' })
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (_e) {
-        // done
+        // wallet not connected
       }
     }
 
@@ -126,20 +131,9 @@ export class Junction {
       }))
     ]
 
+    Junction.log(tags)
     await message({ process: this.#dispatcherId, signer: this.#signer, tags })
   }
 
-  page = async (pageData) => {
-    if (!pageData) {
-      const tag = document.querySelector('link[rel="canonical"]')
-      let url = tag && tag.getAttribute('href')
-
-      if (!url) {
-        url = this.#trackUrlHashes ? window.location.href : window.location.href.replace(/#.*$/, '')
-      }
-
-      pageData = { url }
-    }
-    await this.track('pv', pageData)
-  }
+  page = (pageData) => this.track('pv', pageData)
 }

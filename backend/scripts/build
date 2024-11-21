@@ -6,6 +6,7 @@ mkdir -p "build"
 
 DISPATCHER_CODE_TXID=$(cat upload-ids/dispatcher)
 ACCOUNT_CODE_TXID=$(cat upload-ids/account)
+REPORT_CODE_TXID=$(cat upload-ids/report)
 
 for module in $(ls modules)
 do
@@ -13,6 +14,7 @@ do
 
   sed -i "s/_DISPATCHER_CODE_TXID_/$DISPATCHER_CODE_TXID/g" "tmp/process.lua"
   sed -i "s/_ACCOUNT_CODE_TXID_/$ACCOUNT_CODE_TXID/g" "tmp/process.lua"
+  sed -i "s/_REPORT_CODE_TXID_/$REPORT_CODE_TXID/g" "tmp/process.lua"
 
   mv "tmp/process.lua" "build/$module.lua"
 

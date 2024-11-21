@@ -10,17 +10,20 @@ Name = Name or ao.env.Process.Tags.Name
 global AccountId: string
 AccountId = AccountId or ""
 
-local record Report
-  name: string
-  processId: string
-  eventType: string
-end
-
-global Reports: {Report} 
+global Reports: {string}
 Reports = Reports or {}
 
 global AssignedEventCount: integer 
 AssignedEventCount = AssignedEventCount or 0
+
+global record ReportError 
+  timestamp: integer 
+  message: string
+  processId: string
+end
+
+global ReportErrors: {ReportError}
+ReportErrors = ReportErrors or {}
 
 ---------- UTILITIES ----------
 
@@ -43,6 +46,7 @@ Handlers.add(
       AccountId = AccountId,
       Reports = Reports,
       AssignedEventCount = AssignedEventCount,
+      ReportErrors = ReportErrors,
       MemoryUsed = collectgarbage("count")
     }
 
@@ -55,19 +59,27 @@ Handlers.add(
     })
   end
 )
-
+--[[
+  The reports only accept messages from the dispatcher, so the dispatcher
+  receives client messages and distributes them by sending them to itself and 
+  then assinging the new message to the reports.
+]]
 Handlers.add(
   "Track", "Track",
   function (message: ReceivedMessage)
     local tags = message.Tags
+
     tags.Action = "Calculate"
+    -- as the dispatcher forwards the message to the reports, 
+    -- the report needs a way to know who sent the message
+    tags.ad = message.From
 
-    -- TODO: sanitize tag values
-
-    ao.send({Target = ao.id, Tags = tags})
+    if #Reports > 0 then
+      ao.send({Target = ao.id, Tags = tags})
+    end
   end
 )
--- ensures assigned messages comes from this process and have the right action
+
 Handlers.add(
   "Calculate", "Calculate", 
   function(message: ReceivedMessage)
@@ -75,24 +87,32 @@ Handlers.add(
     return
   end
 
-  local affectedReportProcessIds = {}
-  for _, report in ipairs(Reports) do
-    if report.eventType == message.Tags.ev then
-      table.insert(affectedReportProcessIds, report.processId)
-    end
-  end
-
-  if #affectedReportProcessIds > 0 then
-    -- Using assign to avoid message duplication
-    ao.assign({ 
-      Processes = affectedReportProcessIds, 
-      Message = message.Id
-    })
-    AssignedEventCount = AssignedEventCount + #affectedReportProcessIds
-  end
+  -- Using assign to avoid message duplication
+  ao.assign({Processes = Reports, Message = message.Id})
+  AssignedEventCount = AssignedEventCount + #Reports
 end)
 
 ---------- PROTECTED HANDLERS ----------
+
+Handlers.add(
+  "Store-Report-Error", {Error = "_"}, 
+  function(message: ReceivedMessage)
+    for _, processId in ipairs(Reports) do
+      if processId == message.From then
+        table.insert(ReportErrors, {
+          timestamp = os.time(),
+          message = message.Tags.Error,
+          processId = message.From
+        })
+
+        if #ReportErrors > 100 then
+          table.remove(ReportErrors, 1)
+        end
+        break
+      end
+    end
+  end
+)
 
 Handlers.add("Set-Account", "Set-Account", 
   accountOnly(function(message: ReceivedMessage)
@@ -108,25 +128,11 @@ Handlers.add("Set-Account", "Set-Account",
 Handlers.add(
   "Add-Report", "Add-Report",
   accountOnly(function (message: ReceivedMessage)
-    if not message.Tags.Name then 
-      return message.reply({Tags = {Error = "Name tag required"}})
-    end
-
     if not message.Tags.ProcessId then 
       return message.reply({Tags = {Error = "ProcessId tag required"}})
     end
 
-    if not message.Tags.EventType then 
-      return message.reply({Tags = {Error = "EventType tag required"}})
-    end
-
-    local report: Report = {
-      name = message.Tags.Name,
-      processId = message.Tags.ProcessId,
-      eventType = message.Tags.EventType
-    }
-
-    table.insert(Reports, report)
+    table.insert(Reports, message.Tags.ProcessId)
 
     message.reply({Tags = {Success = "Report added"}})
   end)
@@ -135,12 +141,12 @@ Handlers.add(
 Handlers.add(
   "Remove-Report", "Remove-Report",
   accountOnly(function (message: ReceivedMessage)
-    if not message.Tags.Name then 
-      return message.reply({Tags = {Error = "Name is required"}})
+    if not message.Tags.ProcessId then 
+      return message.reply({Tags = {Error = "ProcessId tag required"}})
     end
 
-    for i, report in ipairs(Reports) do
-      if report.name == message.Tags.Name then
+    for i, processId in ipairs(Reports) do
+      if processId == message.Tags.ProcessId then
         table.remove(Reports, i)
         break
       end

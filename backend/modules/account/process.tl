@@ -22,10 +22,8 @@ local enum ReportStatus
 end
 
 local record Report
-  name: string 
-  processId: string | nil  
-  eventType: string 
-  eventKey: string
+  name: string
+  processId: string | nil
   status: ReportStatus
 end
 
@@ -144,20 +142,11 @@ Handlers.add(
       return message.reply({Tags = {Error = "Name is required"}})
     end
 
-    if not message.Tags.EventType then 
-      return message.reply({Tags = {Error = "EventType is required"}})
+    if not message.Tags.RecordsMaxAge then 
+      return message.reply({Tags = {Error = "RecordsMaxAge is required"}})
     end
 
-    if not message.Tags.EventKey then 
-      return message.reply({Tags = {Error = "EventKey is required"}})
-    end
-
-    local report: Report = {
-      name = message.Tags.Name,
-      eventType = message.Tags.EventType,
-      eventKey = message.Tags.EventKey,
-      status = "pending"
-    }
+    local report: Report = {name = message.Tags.Name, status = "pending"}
 
     Reports[message.Tags.Name] = report
 
@@ -168,9 +157,8 @@ Handlers.add(
       Tags = {
         Authority = ao.authorities[1],
         Name = message.Tags.Name,
-        EventType = message.Tags.EventType,
-        EventKey = message.Tags.EventKey,
-        DispatcherId = DispatcherId
+        DispatcherId = DispatcherId,
+        RecordsMaxAge = message.Tags.RecordsMaxAge
       }
     }).receive()
 
@@ -180,9 +168,7 @@ Handlers.add(
       Target = DispatcherId,
       Tags = {
         Action = "Add-Report",
-        Name = report.name,
         ProcessId = report.processId,
-        EventType = report.eventType,
       }
     }).receive()
 
@@ -207,7 +193,7 @@ Handlers.add(
         Target = DispatcherId,
         Tags = {
           Action = "Remove-Report",
-          Name = message.Tags.Name
+          ProcessId = report.processId
         }
       })
       return 
