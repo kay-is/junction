@@ -42,6 +42,7 @@
     "@ardrive/turbo-sdk": "^1.20.0",
     "@kay-is/ewig": "^0.0.11",
     "@othent/kms": "^2.1.1",
-    "@permaweb/aoconnect": "^0.0.59"
+    "@permaweb/aoconnect": "^0.0.61",
+    "chart.js": "^4.4.6"
   }
 }

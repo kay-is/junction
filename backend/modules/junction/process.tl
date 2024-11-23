@@ -157,11 +157,14 @@ Handlers.add(
 
 Handlers.add("Get-Accounts", "Get-Accounts",
   function(message: ReceivedMessage)
-    local userAccounts = {}
+    if not message.Tags.Address then
+      return message.reply({Tags = {Error = "Missing address tag"}})
+    end
 
+    local userAccounts = {}
     for _, account in ipairs(Accounts) do
       for _, member in ipairs(account.members) do
-        if member == message.From then
+        if member == message.Tags.Address then
           table.insert(userAccounts, account)
           break
         end

@@ -3,18 +3,17 @@
 global json = require("json")
 
 ---------- GLOBALS  ----------
-
 global Name = ao.env.Process.Tags.Name
 global DispatcherId = ao.env.Process.Tags.DispatcherId
 global RecordsMaxAge = tonumber(ao.env.Process.Tags.RecordsMaxAge) as integer
- 
 global ProcessedEvents = 0
 
 local record Session
   id: string 
   start: integer
   pages: {string:boolean}
-  firstPage: {string:integer} -- url -> timestamp
+  firstPage: string
+  firstPageTimestamp: integer
 end
 
 global Sessions: {string: Session}
@@ -24,8 +23,8 @@ global ActiveSessions = 0
 local record Record
   pageViews: integer
   visitors: integer
-  web3visitors: integer
-  singleViewVisitor: integer
+  web3Visitors: integer
+  singleViewVisitors: integer
   bounceRate: number
   sumLoadingTime: integer
   avgLoadingTime: integer
@@ -85,7 +84,8 @@ local function getSession(event: Event): Session
       id = event.ad,
       start = event.ts,
       pages = {},
-      firstPage = {}
+      firstPage = "",
+      firstPageTimestamp = 0
     }
     Sessions[event.ad] = session
     ActiveSessions = ActiveSessions + 1
@@ -121,8 +121,8 @@ local function getRecord(event: Event): Record
     rec = {
       pageViews = 0,
       visitors = 0,
-      singleViewVisitor = 0,
-      web3visitors = 0,
+      singleViewVisitors = 0,
+      web3Visitors = 0,
       bounceRate = 0,
       sumLoadingTime = 0,
       avgLoadingTime = 0
@@ -145,18 +145,28 @@ end
 
 ---------- PUBLIC HANDLERS ----------
 
+local record ReportInfo
+  Name: string
+  DispatcherId: string 
+  RecordsMaxAge: integer
+  ActiveSessions: integer
+  ProcessedEvents: integer
+  MemoryUsed: number
+end 
+
 Handlers.add(
   "Info", "Info",
   function(message: ReceivedMessage)
+    local info: ReportInfo = {
+      Name = Name,
+      ProcessedEvents = ProcessedEvents,
+      ActiveSessions = ActiveSessions,
+      DispatcherId = DispatcherId,
+      RecordsMaxAge = RecordsMaxAge,
+      MemoryUsed = collectgarbage("count")
+    }
     message.reply({
-      Data = json.encode({
-        Name = Name,
-        ProcessedEvents = ProcessedEvents,
-        ActiveSessions = ActiveSessions,
-        DispatcherId = DispatcherId,
-        RecordsMaxAge = RecordsMaxAge,
-        MemoryUsed = collectgarbage("count")
-      }),
+      Data = json.encode(info),
       Tags = {["Content-Type"] = "application/json"}
     })
   end
@@ -187,25 +197,26 @@ Handlers.add(
       rec.visitors = rec.visitors + 1
 
       if event.eth or event.sol or event.ar then
-        rec.web3visitors = rec.web3visitors + 1
+        rec.web3Visitors = rec.web3Visitors + 1
       end
 
       session.pages[event.url] = true
     end
 
-    -- a session with only one page view is a single view visitor
-    if not session.firstPage[event.url] then
-      session.firstPage[event.url] = event.ts
-      rec.singleViewVisitor = rec.singleViewVisitor + 1
+    if session.firstPageTimestamp == 0 then
+      -- a session with only one page view is a single view visitor
+      session.firstPageTimestamp = event.ts
+      session.firstPage = event.url
+      rec.singleViewVisitors = rec.singleViewVisitors + 1
     else
       -- if the session has more than one page view, it is not a single view visitor
-      local firstViewTimestamp = roundTimestampToHour(session.firstPage[event.url])
-      local firstView: Record = nil 
+      local firstViewTimestamp = roundTimestampToHour(session.firstPageTimestamp)
+      local recordWithfirstView: Record = nil 
       for ts, records in pairs(Records) do
         if tonumber(ts) == firstViewTimestamp then
-          firstView = records[event.url]
-          if firstView.singleViewVisitor > 0 then
-            firstView.singleViewVisitor = firstView.singleViewVisitor - 1
+          recordWithfirstView = records[session.firstPage]
+          if recordWithfirstView.singleViewVisitors > 0 then
+            recordWithfirstView.singleViewVisitors = recordWithfirstView.singleViewVisitors - 1
           end
           break
         end
@@ -213,7 +224,7 @@ Handlers.add(
     end
 
     if rec.visitors > 0 then
-      rec.bounceRate = (rec.singleViewVisitor / rec.visitors) * 100
+      rec.bounceRate = (rec.singleViewVisitors / rec.visitors) * 100
     end
 
     clearOldRecords()

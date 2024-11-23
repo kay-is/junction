@@ -10,8 +10,8 @@ Name = ao.env.Process.Tags.Name
 global Description: string
 Description = ao.env.Process.Tags.Description
 
-global Members: {string: string}
-Members = {Creator = ao.env.Process.Tags.Creator}
+global Members: {string: string} -- {address: name}
+Members = {[ao.env.Process.Tags.Creator] = "Creator"}
 
 global DispatcherId: string 
 DispatcherId = ao.env.Process.Tags.DispatcherId
@@ -93,19 +93,15 @@ Handlers.add(
 
       if infoUpdate.Members then
         Members = infoUpdate.Members
-        local newMembers = {}
-        for id, _ in pairs(Members) do
-          table.insert(newMembers, id)
-        end
 
-        local memberValues = {}
-        for _, address in pairs(Members) do
-          table.insert(memberValues, address)
+        local memberAddresses = {}
+        for address, _ in pairs(Members) do
+          table.insert(memberAddresses, address)
         end
 
         ao.send({
           Target = Owner, -- Junction registry
-          Data = json.encode(memberValues), 
+          Data = json.encode(memberAddresses), 
           Tags = {Action = "Update-Account-Members"}
         })
       end

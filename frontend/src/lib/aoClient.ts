@@ -4,7 +4,7 @@ type AoRequest = {
   dryrun?: boolean
   processId: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signer: any
+  signer?: any
   tags?: Record<string, string>
   data?: object
 }
@@ -32,9 +32,14 @@ export const request = async (config: AoRequest) => {
     })
   }
 
+  console.log(result)
+
+  if (result.Error) throw new Error(result.Error)
+
   const response = result.Messages.pop()
+
   const errorTag = response.Tags.find((t: { name: string }) => t.name === 'Error')
   if (errorTag) throw new Error(errorTag.value)
 
-  return JSON.parse(response.Data)
+  return response.Data ? JSON.parse(response.Data) : {}
 }
