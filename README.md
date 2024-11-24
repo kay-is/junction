@@ -1,4 +1,4 @@
-[![protocol.land](https://arweave.net/eZp8gOeR8Yl_cyH9jJToaCrt2He1PHr0pR4o-mHbEcY)](https://protocol.land/#/repository/1f2dedce-84e9-429c-b2f3-a2508f8e4582)
+[![protocol.land](https://arweave.net/eZp8gOeR8Yl_cyH9jJToaCrt2He1PHr0pR4o-mHbEcY)](https://protocol.land/#/repository/664813c3-8b20-4dcf-a060-791541088e18)
 
 # JUNCTION
 
