@@ -2,7 +2,7 @@
 
 # JUNCTION
 
-Junction is an anonymous onchain web analytics platform powered by Arweave and AO.
+Junction is an anonymous onchain web analytics platform powered by Arweave & AO.
 
 <https://junction.ar.io>
 
