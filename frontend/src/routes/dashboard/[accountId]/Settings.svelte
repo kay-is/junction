@@ -1,12 +1,20 @@
 <script lang="ts">
-  import { Button, ButtonGroup, Heading, Input, InputAddon, P } from 'flowbite-svelte'
+  import { Button, ButtonGroup, Heading, Input, InputAddon, P, Spinner } from 'flowbite-svelte'
   import AppState from '$lib/appState.svelte'
   import * as AoClient from '$lib/aoClient'
   const accountId = document.location.pathname.split('/').pop()
   if (accountId) AppState.account.load(accountId)
 
   const ReportCodeTxId = 'cYAhtE8HtuGl0VNoW4DBN8dsdKcDon7fhA1ZtM-2iIc'
-  const addReport = (name: string) => () => AppState.account.addReport(name, ReportCodeTxId)
+  const addReport = (name: string) => async () => {
+    await AppState.account.addReport(name, ReportCodeTxId)
+
+    const interval = setInterval(async () => {
+      if (accountId) await AppState.account.load(accountId)
+      const newReport = AppState.account.reportInfos[name]
+      if (newReport && newReport.status === 'ready') clearInterval(interval)
+    }, 10000)
+  }
 
   let eventLoading = $state(false)
   const sendTestEvent = async () => {
@@ -37,6 +45,11 @@
 <div class="container max-w-5xl pt-5">
   <Heading class="mb-5">Settings</Heading>
 
+  <P>
+    You can check the status of your account's AO processes here, send example events, and start
+    reports.
+  </P>
+
   <Heading tag="h2" class="mb-5">Account</Heading>
   <ButtonGroup class="w-full">
     <InputAddon>Name</InputAddon>
@@ -51,7 +64,7 @@
     <Input value={AppState.account.id} class="font-mono" />
   </ButtonGroup>
 
-  <Heading tag="h2" class="mb-5">Members</Heading>
+  <Heading tag="h2" class="my-5">Members</Heading>
   {#each Object.entries(AppState.account.members) as [address, name]}
     <ButtonGroup>
       <InputAddon>Name</InputAddon>
@@ -64,9 +77,14 @@
     <hr />
   {/each}
 
-  <Heading tag="h2" class="mb-5">Reports</Heading>
+  <Heading tag="h2" class="my-5">Reports</Heading>
   {#if !AppState.account.reportInfos['top-pages']}
-    <Button onclick={addReport('top-pages')} size="lg" class="w-full">Add Top Pages Report</Button>
+    <Button
+      onclick={addReport('top-pages')}
+      disabled={AppState.account.loading}
+      size="lg"
+      class="w-full">Add Reports</Button
+    >
   {/if}
   {#each Object.values(AppState.account.reportInfos) as reportInfo}
     <ButtonGroup>
@@ -81,6 +99,9 @@
       <InputAddon>Status</InputAddon>
       <Input value={reportInfo.status} />
     </ButtonGroup>
+    {#if reportInfo.status === 'pending'}
+      <Spinner /> Waiting for initialization...
+    {/if}
     {#if reportInfo.status === 'ready'}
       {#await AppState.account.reports[reportInfo.name].load()}
         <P>Loading...</P>

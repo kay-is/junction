@@ -88,13 +88,6 @@ class Accounts {
     this.loading = true
     const account = await JunctionClient.registerAccount(name)
     this.list.push(account)
-    const refreshAccounts = async () => {
-      await this.load()
-      const a = this.list.find((a) => a.id === account.id)
-      if (!a || a.status !== 'ready') return setTimeout(refreshAccounts, 10000)
-      this.loading = false
-    }
-    setTimeout(refreshAccounts, 10000)
     localStorage.setItem('accounts', JSON.stringify(this.list))
   }
 }
@@ -179,8 +172,6 @@ class Account {
       RecordsMaxAge: '7776000000' // 90 days in ms
     })
 
-    await this.load(this.id)
-
     this.loading = false
   }
 }
@@ -251,7 +242,17 @@ class Report {
   loadRecords = async (start: Date, stop: Date) => {
     this.loading = true
 
-    this.records = await ReportClient.getRecords(this.id, +start, +stop)
+    const receivedRecords = await ReportClient.getRecords(this.id, +start, +stop)
+
+    // fill in the gaps
+    const recordsMap = new Map(Object.entries(receivedRecords))
+    const records: Record<string, JunctionRecord> = {}
+    for (let t = +start; t <= +stop; t += 3600000) {
+      const key = t.toString()
+      records[key] = recordsMap.get(key) ?? {}
+    }
+
+    this.records = records
 
     localStorage.setItem('reportRecords-' + this.id, JSON.stringify(this.records))
 

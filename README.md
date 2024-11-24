@@ -1,37 +1,43 @@
+[![protocol.land](https://arweave.net/eZp8gOeR8Yl_cyH9jJToaCrt2He1PHr0pR4o-mHbEcY)](https://protocol.land/#/repository/1f2dedce-84e9-429c-b2f3-a2508f8e4582)
+
 # JUNCTION
 
-## Submission to the Permahacks 2024 Hackathon
+Junction is an anonymous onchain web analytics platform powered by Arweave and AO.
 
-Features:
+<https://junction.ar.io>
 
-- [ArConnect](https://www.arconnect.io/) & [Othent](https://othent.io/) powered authentication.
-- [AR.IO](https://ar.io/) powered web hosting.
-- [ArNS](https://arns.app/) domain support.
-- [AO](https://ao.ar-io.dev/) powered web analytics and team management.
-- [Astro](https://www.astrousd.com/) powered tipping system
+## Features
+
+- **Decentralized**: The frontend is hosted on the Arweave blockchain. The backend is hosted on the AO network.
+- **Anonymous**: Junction is an anonymous web analytics platform that respects user privacy by using randomly generated IDs and aggregating data.
+- **Onchain**: Junction stores all data on the Arweave blockchain, ensuring that data is immutable and secure.
 
 ## Screenshots
 
-### Page Editor
+### Landing Page
 
-![Editor](./assets/editor.png)
+![Landing Page](./assets/landing.png)
 
-### Web Analytics
+### Reports Dashboard
 
-![Analytics](./assets/analytics.png)
+![Reports](./assets/reports.png)
 
-### ArNS Domains
+### Team Member Management
 
-![ArNS](./assets/arns.png)
+![Members](./assets/docs.png)
 
-### Quantum Arweave Tipping
+### Documentation
 
-![Images](./assets/tipping.png)
+![Docs](./assets/docs.png)
 
-### Images
+### Settings
 
-![Images](./assets/images.png)
+![Settings](./assets/settings.png)
 
-### Team Members
+## History
 
-![Members](./assets/members.png)
+This was a decentralize LinkTree clone with web analytics features.
+
+It was a submission to the Permahacks 2024 hackathon, where it won a finalist prize of $1000.
+
+It was reworked to a more general web analyitcs tool and [submitted to the Fullstack Hack 2024 hackathon](https://devpost.com/software/junction-03qwj7).

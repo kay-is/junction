@@ -1,4 +1,5 @@
 import * as AoClient from './aoClient'
+import type { JunctionRecord } from './appState.svelte'
 
 export type JunctionReportInfo = {
   Name: string
@@ -16,13 +17,11 @@ export const getInfo = async (reportId: string): Promise<JunctionReportInfo> =>
     tags: { Action: 'Info' }
   })
 
-export type JunctionReportRecord = Record<string, object> // name -> values
-
 export const getRecords = async (
   reportId: string,
   start: number,
   stop: number
-): Promise<Record<string, JunctionReportRecord>> =>
+): Promise<Record<string, JunctionRecord>> =>
   AoClient.request({
     dryrun: true,
     processId: reportId,

@@ -12,6 +12,7 @@
     "lint": "prettier --check . && eslint ."
   },
   "devDependencies": {
+    "@kay-is/ewig": "^0.0.11",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/adapter-static": "^3.0.6",
     "@sveltejs/kit": "^2.0.0",
@@ -39,8 +40,6 @@
     "vite-plugin-node-polyfills": "^0.22.0"
   },
   "dependencies": {
-    "@ardrive/turbo-sdk": "^1.20.0",
-    "@kay-is/ewig": "^0.0.11",
     "@othent/kms": "^2.1.1",
     "@permaweb/aoconnect": "^0.0.61",
     "chart.js": "^4.4.6"
