@@ -1,0 +1,19 @@
+{
+  "name": "junction-registry",
+  "private": true,
+  "version": "2.0.2",
+  "main": "modules/process.ts",
+  "scripts": {
+    "build": "tstl",
+    "dev": "tstl --watch"
+  },
+  "keywords": [],
+  "author": "Kay Plößer",
+  "license": "ISC",
+  "devDependencies": {
+    "@typescript-to-lua/language-extensions": "^1.19.0",
+    "lua-types": "^2.13.1",
+    "typescript": "^5.7.2",
+    "typescript-to-lua": "^1.28.1"
+  }
+}
