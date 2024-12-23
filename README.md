@@ -1,5 +1,3 @@
-[![protocol.land](https://arweave.net/eZp8gOeR8Yl_cyH9jJToaCrt2He1PHr0pR4o-mHbEcY)](https://protocol.land/#/repository/664813c3-8b20-4dcf-a060-791541088e18)
-
 # JUNCTION
 
 Junction is an anonymous onchain web analytics platform powered by Arweave & AO.
