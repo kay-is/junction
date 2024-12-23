@@ -1,5 +1,5 @@
 import * as json from "json"
-import * as Utils from "../../common/utilities"
+import * as Utils from "../common/utilities"
 
 type JunctionAccount = {
   name: string

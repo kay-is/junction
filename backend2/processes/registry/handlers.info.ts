@@ -1,5 +1,5 @@
 import * as Accounts from "./handlers.accounts"
-import * as Utils from "../../common/utilities"
+import * as Utils from "../common/utilities"
 
 Name = "Junction-Registry"
 
