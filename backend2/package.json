@@ -3,11 +3,15 @@
   "version": "2.0.5",
   "description": "Junction AO processes created with TypeScript-to-Lua",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "build:registry": "cd processes/registry && tstl",
     "build:dispatcher": "cd processes/dispatcher && tstl",
+    "build:account": "cd processes/account && tstl",
     "build:top-pages-report": "cd processes/reports/top-pages && tstl",
-    "build": "npm run build:registry && npm run build:dispatcher && npm run build:top-pages-report"
+    "build": "npm run build:registry && npm run build:dispatcher && npm run build:account && npm run build:top-pages-report",
+    "test:registry": "node --experimental-wasm-memory64 tests/registry",
+    "test": "node --experimental-wasm-memory64 tests"
   },
   "author": "Kay Plößer",
   "license": "ISC",
@@ -15,6 +19,7 @@
     "@typescript-to-lua/language-extensions": "^1.19.0",
     "lua-types": "^2.13.1",
     "typescript": "^5.7.2",
-    "typescript-to-lua": "^1.28.1"
+    "typescript-to-lua": "^1.28.1",
+    "wao": "^0.7.0"
   }
 }

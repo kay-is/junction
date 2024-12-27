@@ -16,12 +16,15 @@ type CreateHandlerFunction = (
   options: createHandlerOptions
 ) => ao.handlers.Handler
 
-declare let Members: Record<string, string>
-Members = Members ?? {}
+export type Members = Record<string, string>
+declare let Members: Members
+Members = Members ?? { Owner }
 
 export const addMember = (id: string, name: string) => {
   Members[id] = name
 }
+
+export const getMembers = () => Members
 
 export const removeMember = (id: string) => {
   delete Members[id]
