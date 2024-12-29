@@ -2,19 +2,20 @@ import * as Utils from "../../common/utilities"
 
 // -------------------- Report State --------------------
 
-Name = ao.env.Process.Tags.Name
+if (Name === "aos") Name = ao.env.Process.Tags.Name
 
-declare let DispatcherId: string
-DispatcherId = ao.env.Process.Tags.DispatcherId
+declare var DispatcherId: string
+if (DispatcherId === undefined) DispatcherId = ao.env.Process.Tags.DispatcherId
 
-declare let RecordsMaxAge: number
-RecordsMaxAge = parseInt(ao.env.Process.Tags.RecordsMaxAge)
+declare var RecordsMaxAge: number
+if (RecordsMaxAge === undefined)
+  RecordsMaxAge = parseInt(ao.env.Process.Tags.RecordsMaxAge)
 
-declare let ProcessedEvents: number
-ProcessedEvents = ProcessedEvents ?? 0
+declare var ProcessedEvents: number
+if (ProcessedEvents === undefined) ProcessedEvents = 0
 
-declare let ActiveRecords: number
-ActiveRecords = 0
+declare var ActiveRecords: number
+if (ActiveRecords === undefined) ActiveRecords = 0
 
 type JunctionSession = {
   id: string
@@ -24,11 +25,11 @@ type JunctionSession = {
   firstPageTimestamp: number
 }
 
-declare let Sessions: Record<string, JunctionSession>
-Sessions = Sessions ?? {}
+declare var Sessions: Record<string, JunctionSession>
+if (Sessions === undefined) Sessions = {}
 
-declare let ActiveSessions: number
-ActiveSessions = ActiveSessions ?? 0
+declare var ActiveSessions: number
+if (ActiveSessions === undefined) ActiveSessions = 0
 
 type JunctionRecord = {
   pageViews: number
@@ -41,7 +42,8 @@ type JunctionRecord = {
 type PageUrl = string
 type Timestamp = string
 export type RecordsType = Record<Timestamp, Record<PageUrl, JunctionRecord>>
-declare let Records: RecordsType
+declare var Records: RecordsType
+if (Records === undefined) Records = {}
 
 type JunctionEvent = {
   ad: string // Arweave wallet address

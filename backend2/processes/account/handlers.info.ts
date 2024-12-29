@@ -2,35 +2,35 @@ import * as json from "json"
 import * as Utils from "../common/utilities"
 import * as Reports from "./handlers.reports"
 
-if (Name === undefined) Name = ao.env.Process.Tags.Name
+if (ao.env.Process.Tags.Name && Name === "aos") Name = ao.env.Process.Tags.Name
 
-declare let Description: string
+declare var Description: string
 if (Description === undefined) Description = ao.env.Process.Tags.Description
 
-declare let RegistryId: string
+declare var RegistryId: string
 if (RegistryId === undefined) RegistryId = ao.env.Process.Tags.RegistryId
 
-declare let DispatcherId: string
+declare var DispatcherId: string
 if (DispatcherId === undefined) DispatcherId = ao.env.Process.Tags.DispatcherId
 
 export const getDispatcherId = () => DispatcherId
 
-type AccountInfo = {
+type JunctionAccountInfo = {
   Name: string
   Description: string
-  Members: Utils.Members
+  Members: ReturnType<typeof Utils.getMembers>
   DispatcherId: string
-  Reports: Reports.Report[]
+  Reports: ReturnType<typeof Reports.getReports>
   MemoryUsage: number
 }
 
-type GetInfoFunction = (this: void) => AccountInfo
+type GetInfoFunction = (this: void) => JunctionAccountInfo
 
 const getInfo: GetInfoFunction = () => ({
   Name,
   Description,
   Members: Utils.getMembers(),
-  DispatcherId,
+  DispatcherId: DispatcherId,
   Reports: Reports.getReports(),
   MemoryUsage: collectgarbage("count"),
 })
@@ -42,8 +42,8 @@ export const info = Utils.createHandler({
 export const updateInfo = Utils.createHandler({
   protected: true,
   dataRequired: true,
-  handler: (message): AccountInfo => {
-    const data: AccountInfo = json.decode(message.Data)
+  handler: (message): JunctionAccountInfo => {
+    const data: JunctionAccountInfo = json.decode(message.Data)
 
     let registryUpdateRequired = false
     if (data.Name !== undefined) {

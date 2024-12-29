@@ -6,7 +6,7 @@ export type Report = {
   name: string
 }
 
-declare let Reports: Report[]
+declare var Reports: Report[]
 if (Reports === undefined) Reports = []
 
 export const getReports = () => Reports

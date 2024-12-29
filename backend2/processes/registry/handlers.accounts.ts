@@ -6,8 +6,8 @@ type JunctionAccount = {
   processId: string
   members: string[]
 }
-declare let Accounts: Record<string, JunctionAccount>
-Accounts = Accounts ?? {}
+declare var Accounts: Record<string, JunctionAccount>
+if (Accounts === undefined) Accounts = {}
 
 export const getAccountCount = () => Object.keys(Accounts).length
 
@@ -44,13 +44,16 @@ export const createAccount = Utils.createHandler({
 
 export const updateAccount = Utils.createHandler({
   dataRequired: true,
-  handler: (message) =>
-    Object.values(Accounts)
-      .filter((account) => account.processId === message.From)
-      .forEach((account) => {
-        type Data = { name?: string; members?: string[] }
-        const data: Data = json.decode(message.Data)
-        account.name = data.name ?? account.name
-        account.members = data.members ?? account.members
-      }),
+  handler: (message) => {
+    const account = Object.values(Accounts).find(
+      (account) => account.processId === message.From
+    )
+
+    if (account === undefined) return { Error: "Account not found." }
+
+    type Data = { name?: string; members?: string[] }
+    const data: Data = json.decode(message.Data)
+    account.name = data.name ?? account.name
+    account.members = data.members ?? account.members
+  },
 })

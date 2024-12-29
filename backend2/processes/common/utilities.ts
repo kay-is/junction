@@ -16,23 +16,23 @@ type CreateHandlerFunction = (
   options: createHandlerOptions
 ) => ao.handlers.Handler
 
-export type Members = Record<string, string>
-declare let Members: Members
-Members = Members ?? { Owner }
+declare var Members: Record<string, string>
 
-export const addMember = (id: string, name: string) => {
-  Members[id] = name
+if (Members === undefined) Members = { [Owner]: "Owner" }
+
+export const addMember = (address: string, name: string) => {
+  Members[address] = name
 }
 
 export const getMembers = () => Members
 
-export const removeMember = (id: string) => {
-  delete Members[id]
+export const removeMember = (address: string) => {
+  delete Members[address]
 }
 
 export const createHandler: CreateHandlerFunction = (options) => (message) => {
-  if (options.protected && !Members[message.From])
-    return message.reply({ Error: "Unauthorized" })
+  if (options.protected && Members[message.From] === undefined)
+    return message.reply({ Status: "Error", Error: "Unauthorized" })
 
   let missingTags = []
 
@@ -46,18 +46,20 @@ export const createHandler: CreateHandlerFunction = (options) => (message) => {
 
   if (missingTags.length > 0) {
     return message.reply({
+      Status: "Error",
       Error: `Missing tags: ${missingTags.join(", ")}`,
     })
   }
 
   const replyData = options.handler(message)
 
-  if (replyData) {
-    if (replyData.Error) message.reply({ Error: replyData.Error })
-    else
-      message.reply({
-        Data: json.encode(replyData),
-        Tags: { ["Content-Type"]: "application/json" },
-      })
-  }
+  if (replyData === undefined) return message.reply({ Status: "Success" })
+
+  if (replyData.Error)
+    return message.reply({ Status: "Error", Error: replyData.Error })
+
+  return message.reply({
+    Data: json.encode(replyData),
+    Tags: { ["Content-Type"]: "application/json", Status: "Success" },
+  })
 }

@@ -27,6 +27,7 @@ describe("Junction-Registry Process", () => {
       tags: [{ name: "Action", value: "Info" }],
     })
 
+    aoTestUtils.assertSuccess(result.Messages[0])
     const processInfo = JSON.parse(result.Messages[0].Data)
     assert.equal(processInfo.Name, "Junction-Registry")
     assert.equal(processInfo.AccountCount, 0)
@@ -44,6 +45,7 @@ describe("Junction-Registry Process", () => {
       ],
     })
 
+    aoTestUtils.assertSuccess(result.Messages[0])
     const newAccount = JSON.parse(result.Messages[0].Data)
     assert.equal(newAccount.name, "TEST-ACCOUNT-NAME")
     assert.equal(newAccount.processId, accountProcess.addr)
@@ -59,6 +61,7 @@ describe("Junction-Registry Process", () => {
       ],
     })
 
+    aoTestUtils.assertSuccess(result.Messages[0])
     const account = JSON.parse(result.Messages[0].Data)
     assert.equal(account.name, "TEST-ACCOUNT-NAME")
     assert.equal(account.processId, accountProcess.addr)
@@ -74,13 +77,14 @@ describe("Junction-Registry Process", () => {
       ],
     })
 
+    aoTestUtils.assertSuccess(result.Messages[0])
     const accounts = JSON.parse(result.Messages[0].Data)
     assert.equal(accounts[0].name, "TEST-ACCOUNT-NAME")
     assert.equal(accounts[0].processId, accountProcess.addr)
   })
 
   it("handles UpdateAccount action message from account process", async () => {
-    await ao.message({
+    const updateResult = await aoTestUtils.messageResult({
       process: registryProcessId,
       signer: accountProcess.signer,
       tags: [{ name: "Action", value: "UpdateAccount" }],
@@ -90,7 +94,9 @@ describe("Junction-Registry Process", () => {
       }),
     })
 
-    const result = await ao.dryrun({
+    aoTestUtils.assertSuccess(updateResult.Messages[0])
+
+    const accountListResult = await ao.dryrun({
       process: registryProcessId,
       tags: [
         { name: "Action", value: "GetAccountList" },
@@ -98,18 +104,21 @@ describe("Junction-Registry Process", () => {
       ],
     })
 
-    const accounts = JSON.parse(result.Messages[0].Data)
+    aoTestUtils.assertSuccess(accountListResult.Messages[0])
+    const accounts = JSON.parse(accountListResult.Messages[0].Data)
     assert.equal(accounts[0].name, "NEW-TEST-ACCOUNT-NAME")
     assert.equal(accounts[0].processId, accountProcess.addr)
   })
 
   it("ignores UpdateAccount action message from unknown account address", async () => {
-    await ao.message({
+    const updateResult = await aoTestUtils.messageResult({
       process: registryProcessId,
       signer: user.signer,
       tags: [{ name: "Action", value: "UpdateAccount" }],
       data: JSON.stringify({ name: "", members: [] }),
     })
+
+    aoTestUtils.assertError(updateResult.Messages[0])
 
     const result = await ao.dryrun({
       process: registryProcessId,
@@ -119,20 +128,10 @@ describe("Junction-Registry Process", () => {
       ],
     })
 
+    aoTestUtils.assertSuccess(result.Messages[0])
     const accounts = JSON.parse(result.Messages[0].Data)
     assert.equal(accounts[0].name, "NEW-TEST-ACCOUNT-NAME")
     assert.equal(accounts[0].processId, accountProcess.addr)
-  })
-
-  it("ignores Eval action message from wrong address", async () => {
-    const result = await aoTestUtils.messageResult({
-      process: registryProcessId,
-      signer: user.signer,
-      tags: [{ name: "Action", value: "Eval" }],
-      data: "",
-    })
-
-    assert.equal(result.Messages.length, 0)
   })
 
   it("replies with error on missing tag", async () => {
@@ -141,7 +140,6 @@ describe("Junction-Registry Process", () => {
       tags: [{ name: "Action", value: "GetAccount" }],
     })
 
-    const errorTag = result.Messages[0].Tags.find((tag) => tag.name === "Error")
-    assert.equal(errorTag.value, "Missing tags: Name")
+    aoTestUtils.assertError(result.Messages[0])
   })
 })

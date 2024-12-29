@@ -1,10 +1,12 @@
 import * as Utils from "../common/utilities"
 
-declare let ReportIds: string[]
-ReportIds = ReportIds ?? []
+declare var ReportIds: string[]
+if (ReportIds === undefined) ReportIds = []
 
-declare let AssignedEventCount: number
-AssignedEventCount = AssignedEventCount ?? 0
+export const getReportIds = () => ReportIds
+
+declare var AssignedEventCount: number
+if (AssignedEventCount === undefined) AssignedEventCount = 0
 
 export const addReport = Utils.createHandler({
   protected: true,
@@ -36,7 +38,7 @@ export const track = Utils.createHandler({
 
 export const calculate = Utils.createHandler({
   handler: (message) => {
-    if (message.From !== ao.id) return
+    if (message.From !== ao.id) return { Error: "Unauthorized" }
 
     ao.assign({ Processes: ReportIds, Message: message.Id })
     AssignedEventCount += ReportIds.length
