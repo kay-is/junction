@@ -24,7 +24,8 @@ export const addMember = (address: string, name: string) => {
   Members[address] = name
 }
 
-export const getMembers = () => Members
+type GetMembersFunction = (this: void) => Record<string, string>
+export const getMembers: GetMembersFunction = () => Members
 
 export const removeMember = (address: string) => {
   delete Members[address]

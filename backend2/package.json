@@ -10,9 +10,10 @@
     "build:account": "cd processes/account && tstl",
     "build:top-pages-report": "cd processes/reports/top-pages && tstl",
     "build": "npm run build:registry && npm run build:dispatcher && npm run build:account && npm run build:top-pages-report",
-    "test:registry": "node --experimental-wasm-memory64 tests/registry",
-    "test:dispatcher": "node --experimental-wasm-memory64 tests/dispatcher",
-    "test": "node --experimental-wasm-memory64 tests"
+    "test:registry": "npm run build:registry && node --experimental-wasm-memory64 tests/registry",
+    "test:account": "npm run build:account && node --experimental-wasm-memory64 tests/account",
+    "test:dispatcher": "npm run build:dispatcher && node --experimental-wasm-memory64 tests/dispatcher",
+    "test": "npm run build && node --experimental-wasm-memory64 tests"
   },
   "author": "Kay Plößer",
   "license": "ISC",

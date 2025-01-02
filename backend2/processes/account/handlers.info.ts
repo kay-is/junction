@@ -1,43 +1,31 @@
+import * as proc from "./process"
 import * as json from "json"
 import * as Utils from "../common/utilities"
-import * as Reports from "./handlers.reports"
-
-if (ao.env.Process.Tags.Name && Name === "aos") Name = ao.env.Process.Tags.Name
-
-declare var Description: string
-if (Description === undefined) Description = ao.env.Process.Tags.Description
-
-declare var RegistryId: string
-if (RegistryId === undefined) RegistryId = ao.env.Process.Tags.RegistryId
-
-declare var DispatcherId: string
-if (DispatcherId === undefined) DispatcherId = ao.env.Process.Tags.DispatcherId
-
-export const getDispatcherId = () => DispatcherId
+import * as ProcessState from "./process.state"
 
 type JunctionAccountInfo = {
   Name: string
   Description: string
   Members: ReturnType<typeof Utils.getMembers>
   DispatcherId: string
-  Reports: ReturnType<typeof Reports.getReports>
+  RegistryId: string
+  Reports: ProcessState.Report[]
   MemoryUsage: number
 }
 
 type GetInfoFunction = (this: void) => JunctionAccountInfo
 
 const getInfo: GetInfoFunction = () => ({
-  Name,
-  Description,
+  Name: ProcessState.getName(),
+  Description: ProcessState.getDescription(),
   Members: Utils.getMembers(),
-  DispatcherId: DispatcherId,
-  Reports: Reports.getReports(),
+  RegistryId: ProcessState.getRegistryId(),
+  DispatcherId: ProcessState.getDispatcherId(),
+  Reports: ProcessState.getReports(),
   MemoryUsage: collectgarbage("count"),
 })
 
-export const info = Utils.createHandler({
-  handler: getInfo,
-})
+export const info = Utils.createHandler({ handler: getInfo })
 
 export const updateInfo = Utils.createHandler({
   protected: true,
@@ -50,16 +38,30 @@ export const updateInfo = Utils.createHandler({
       Name = data.Name
       registryUpdateRequired = true
     }
-    if (data.Description !== undefined) Description = data.Description
-    if (data.DispatcherId !== undefined) DispatcherId = data.DispatcherId
     if (data.Members !== undefined) {
-      for (let id in data.Members) Utils.addMember(id, data.Members[id])
+      const members = Utils.getMembers()
+      for (const address of Object.keys(members)) Utils.removeMember(address)
+      for (const [address, name] of Object.entries(data.Members))
+        Utils.addMember(address, name)
       registryUpdateRequired = true
+    }
+
+    if (data.Description !== undefined)
+      ProcessState.setDescription(data.Description)
+    if (data.DispatcherId !== undefined)
+      ProcessState.setDispatcherId(data.DispatcherId)
+    if (data.Reports !== undefined) {
+      const reports = ProcessState.getReports()
+      for (const report of reports) {
+        if (data.Reports.find((r) => r.name === report.name) === undefined)
+          ProcessState.removeReport(report.name)
+      }
+      for (const report of data.Reports) ProcessState.addReport(report)
     }
 
     if (registryUpdateRequired === true) {
       ao.send({
-        Target: RegistryId,
+        Target: ProcessState.getRegistryId(),
         Action: "UpdateAccount",
         Data: json.encode({ name: Name, members: Utils.getMembers() }),
       })
