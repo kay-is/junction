@@ -6,4 +6,4 @@ ao.addAssignable("Calculate", { Action: "Calculate" })
 Handlers.add("Calculate", "Calculate", Calculate.calculate)
 
 import * as Records from "./handlers.records"
-Handlers.add("Get-Records", "Get-Records", Records.getRecords)
+Handlers.add("GetRecords", "GetRecords", Records.getRecords)

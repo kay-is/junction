@@ -2,8 +2,6 @@ import * as Utils from "../../common/utilities"
 
 // -------------------- Report State --------------------
 
-if (Name === "aos") Name = ao.env.Process.Tags.Name
-
 declare var DispatcherId: string
 if (DispatcherId === undefined) DispatcherId = ao.env.Process.Tags.DispatcherId
 
@@ -60,11 +58,11 @@ type JunctionEvent = {
 
 export const calculate = Utils.createHandler({
   handler: (message) => {
-    if (message.From !== DispatcherId) return
+    if (message.From !== DispatcherId) return { Error: "Unauthorized." }
 
     const event = parseEvent(message)
 
-    if (event.ev === "pv") return
+    if (event.ev !== "pv") return
 
     const session = loadSession(event)
     const record = loadRecord(event.ts, event.url)
@@ -109,13 +107,8 @@ export const calculate = Utils.createHandler({
 
 // -------------------- Utility Functions --------------------
 
-const getHourlyTimestamp = (timestamp: number): number => {
-  const date = new Date(timestamp)
-  date.setMinutes(0)
-  date.setSeconds(0)
-  date.setMilliseconds(0)
-  return date.getTime()
-}
+const getHourlyTimestamp = (timestamp: number): number =>
+  Math.floor(timestamp / 3600000) * 3600000
 
 const parseEvent = (message: ao.message.Received): JunctionEvent => ({
   ad: message.Tags.ad,

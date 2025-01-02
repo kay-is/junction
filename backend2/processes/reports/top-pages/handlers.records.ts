@@ -15,6 +15,9 @@ export const getRecords = Utils.createHandler({
         const timestamp = parseInt(timestampKey)
         return timestamp >= start && timestamp <= stop
       })
-      .map(([_, recordsOfOneHour]) => recordsOfOneHour)
+      .reduce<RecordsType>((acc, [timestamp, recordsOfOneHour]) => {
+        acc[timestamp] = recordsOfOneHour
+        return acc
+      }, {})
   },
 })

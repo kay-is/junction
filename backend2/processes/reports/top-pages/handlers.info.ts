@@ -1,6 +1,6 @@
 import * as Utils from "../../common/utilities"
 
-Name = ao.env.Process.Tags.Name
+Name = "Junction-Top-Pages-Report"
 
 // Globals defined in handlers.calculate.ts
 declare const DispatcherId: string
