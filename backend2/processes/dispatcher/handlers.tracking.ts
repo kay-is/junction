@@ -8,6 +8,14 @@ export const getReportIds = () => ReportIds
 declare var AssignedEventCount: number
 if (AssignedEventCount === undefined) AssignedEventCount = 0
 
+export const setAccount = Utils.createHandler({
+  protected: true,
+  requiredTags: ["ProcessId"],
+  handler: (message) => {
+    Utils.setMember(message.Tags.ProcessId, "Account")
+  },
+})
+
 export const addReport = Utils.createHandler({
   protected: true,
   requiredTags: ["ProcessId"],

@@ -42,7 +42,7 @@ export const updateInfo = Utils.createHandler({
       const members = Utils.getMembers()
       for (const address of Object.keys(members)) Utils.removeMember(address)
       for (const [address, name] of Object.entries(data.Members))
-        Utils.addMember(address, name)
+        Utils.setMember(address, name)
       registryUpdateRequired = true
     }
 

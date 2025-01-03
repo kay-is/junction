@@ -20,7 +20,7 @@ declare var Members: Record<string, string>
 
 if (Members === undefined) Members = { [Owner]: "Owner" }
 
-export const addMember = (address: string, name: string) => {
+export const setMember = (address: string, name: string) => {
   Members[address] = name
 }
 

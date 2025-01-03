@@ -14,6 +14,7 @@
     "test:account": "npm run build:account && node --experimental-wasm-memory64 tests/account",
     "test:dispatcher": "npm run build:dispatcher && node --experimental-wasm-memory64 tests/dispatcher",
     "test:top-pages-report": "npm run build:top-pages-report && node --experimental-wasm-memory64 tests/report.top-pages",
+    "test:integration": "npm run build && node --experimental-wasm-memory64 tests/integration",
     "test": "npm run build && node --experimental-wasm-memory64 tests"
   },
   "author": "Kay Plößer",
