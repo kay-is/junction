@@ -5,11 +5,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build:code-registry": "cd processes/code-registry && tstl",
     "build:registry": "cd processes/registry && tstl",
     "build:dispatcher": "cd processes/dispatcher && tstl",
     "build:account": "cd processes/account && tstl",
     "build:top-pages-report": "cd processes/reports/top-pages && tstl",
-    "build": "npm run build:registry && npm run build:dispatcher && npm run build:account && npm run build:top-pages-report",
+    "build": "node scripts/build-parallel",
+    "test:code-registry": "npm run build:code-registry && node --experimental-wasm-memory64 tests/code-registry",
     "test:registry": "npm run build:registry && node --experimental-wasm-memory64 tests/registry",
     "test:account": "npm run build:account && node --experimental-wasm-memory64 tests/account",
     "test:dispatcher": "npm run build:dispatcher && node --experimental-wasm-memory64 tests/dispatcher",
@@ -21,6 +23,7 @@
   "license": "ISC",
   "devDependencies": {
     "@typescript-to-lua/language-extensions": "^1.19.0",
+    "concurrently": "^9.1.2",
     "lua-types": "^2.13.1",
     "typescript": "^5.7.2",
     "typescript-to-lua": "^1.28.1",

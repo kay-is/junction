@@ -1,0 +1,15 @@
+{
+  "name": "junction",
+  "main": "index.ts",
+  "scripts": {
+    "deploy": "pulumi up"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.12",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@ao-tools/pulumi-ao": "^0.1.4",
+    "@pulumi/pulumi": "^3.113.0"
+  }
+}

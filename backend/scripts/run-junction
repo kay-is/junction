@@ -1,5 +1,0 @@
-#!/bin/bash
-
-scripts/build
-
-aos junction_registry --wallet prod-wallet.json
