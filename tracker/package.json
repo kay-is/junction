@@ -1,0 +1,23 @@
+{
+  "name": "tracker",
+  "description": "Junction tracking library",
+  "version": "0.0.7",
+  "main": "index.js",
+  "scripts": {
+    "test": "http-serve -c-1",
+    "build": "rolldown -c index.rolldown.config.mjs && rolldown -c browser.rolldown.config.mjs"
+  },
+  "author": "Kay Plößer",
+  "license": "MIT",
+  "devDependencies": {
+    "arconnect": "^1.0.4",
+    "rolldown": "^1.0.0-beta.1",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@ar.io/arbundles": "^1.0.1",
+    "@permaweb/aoconnect": "^0.0.62",
+    "arweave": "^1.15.5"
+  }
+}
