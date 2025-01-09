@@ -19,6 +19,8 @@ export const getAccount = Utils.createHandler({
       : { Error: "Account not found." },
 })
 
+export type AccountListResponse = { name: string; processId: string }[]
+
 export const getAccountList = Utils.createHandler({
   requiredTags: ["Address"],
   handler: (message) =>
@@ -26,6 +28,8 @@ export const getAccountList = Utils.createHandler({
       .filter((account) => account.members.includes(message.Tags.Address))
       .map(({ name, processId }) => ({ name, processId })),
 })
+
+export type CreateAccountResponse = JunctionAccount
 
 export const createAccount = Utils.createHandler({
   requiredTags: ["Name", "ProcessId"],
@@ -41,6 +45,8 @@ export const createAccount = Utils.createHandler({
     return Accounts[message.Tags.Name]
   },
 })
+
+export type UpdateAccountResponse = void
 
 export const updateAccount = Utils.createHandler({
   dataRequired: true,

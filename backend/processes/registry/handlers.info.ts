@@ -3,7 +3,7 @@ import * as Utils from "../common/utilities"
 
 Name = "Junction-Registry"
 
-type JunctionRegistryInfo = {
+export type RegistryInfoResponse = {
   Name: string
   Members: ReturnType<typeof Utils.getMembers>
   AccountCount: ReturnType<typeof Accounts.getAccountCount>
@@ -11,7 +11,7 @@ type JunctionRegistryInfo = {
 }
 
 export const info = Utils.createHandler({
-  handler: (): JunctionRegistryInfo => ({
+  handler: (): RegistryInfoResponse => ({
     Name,
     Members: Utils.getMembers(),
     AccountCount: Accounts.getAccountCount(),

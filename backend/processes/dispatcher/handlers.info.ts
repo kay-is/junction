@@ -5,7 +5,7 @@ Name = "Junction-Dispatcher"
 
 declare var AssignedEventCount: number
 
-type JunctionDispatcherInfo = {
+export type DispatcherInfoResponse = {
   Name: string
   Members: ReturnType<typeof Utils.getMembers>
   AssignedEventCount: number
@@ -14,7 +14,7 @@ type JunctionDispatcherInfo = {
 }
 
 export const info = Utils.createHandler({
-  handler: (): JunctionDispatcherInfo => ({
+  handler: (): DispatcherInfoResponse => ({
     Name,
     Members: Utils.getMembers(),
     AssignedEventCount: AssignedEventCount,

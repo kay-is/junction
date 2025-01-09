@@ -4,8 +4,13 @@ Name = "Junction-Code-Registry"
 
 declare var Environment: Record<string, string>
 
+export type CodeRegistryInfoResponse = {
+  Name: string
+  Environment: Record<string, string>
+}
+
 const info = Utils.createHandler({
-  handler: () => ({ Name, Environment }),
+  handler: (): CodeRegistryInfoResponse => ({ Name, Environment }),
 })
 
 Handlers.add("Info", "Info", info)

@@ -3,7 +3,7 @@ import * as json from "json"
 import * as Utils from "../common/utilities"
 import * as ProcessState from "./process.state"
 
-type JunctionAccountInfo = {
+export type AccountInfoResponse = {
   Name: string
   Description: string
   Members: ReturnType<typeof Utils.getMembers>
@@ -13,7 +13,7 @@ type JunctionAccountInfo = {
   MemoryUsage: number
 }
 
-type GetInfoFunction = (this: void) => JunctionAccountInfo
+type GetInfoFunction = (this: void) => AccountInfoResponse
 
 const getInfo: GetInfoFunction = () => ({
   Name: ProcessState.getName(),
@@ -27,11 +27,13 @@ const getInfo: GetInfoFunction = () => ({
 
 export const info = Utils.createHandler({ handler: getInfo })
 
+export type AccountUpdateInfoResponse = AccountInfoResponse
+
 export const updateInfo = Utils.createHandler({
   protected: true,
   dataRequired: true,
-  handler: (message): JunctionAccountInfo => {
-    const data: JunctionAccountInfo = json.decode(message.Data)
+  handler: (message): AccountUpdateInfoResponse => {
+    const data: AccountUpdateInfoResponse = json.decode(message.Data)
 
     let registryUpdateRequired = false
     if (data.Name !== undefined) {
