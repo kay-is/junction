@@ -1,8 +1,9 @@
 import { Othent, type AppInfo } from '@othent/kms'
-import * as JunctionClient from './junctionClient'
+import * as RegistryClient from './registryClient'
 import * as AccountClient from './accountClient'
 import * as DispatcherClient from './dispatcherClient'
 import * as ReportClient from './reportClient'
+import type * as HandlerTypes from './handlerTypes'
 
 const appInfo: AppInfo = {
   name: 'Junction',
@@ -61,15 +62,8 @@ class Wallet {
   }
 }
 
-type JunctionAccount = {
-  name: string
-  id: string
-  members: string[]
-  status: 'ready' | 'pending'
-}
-
 class Accounts {
-  list: JunctionAccount[] = $state([])
+  list: HandlerTypes.AccountListResponse = $state([])
   loading = $state(false)
 
   constructor() {
@@ -79,16 +73,23 @@ class Accounts {
 
   load = async () => {
     this.loading = true
-    this.list = await JunctionClient.getAccounts()
+    this.list = await RegistryClient.getAccounts()
     this.loading = false
     localStorage.setItem('accounts', JSON.stringify(this.list))
   }
 
-  register = async (name: string) => {
+  register = async (Name: string, Description: string) => {
     this.loading = true
-    const account = await JunctionClient.registerAccount(name)
+    const dispatcherId = await DispatcherClient.create()
+    const accountId = await AccountClient.create({
+      Name,
+      Description,
+      DispatcherId: dispatcherId
+    })
+    const account = await RegistryClient.createAccount(Name, accountId)
     this.list.push(account)
     localStorage.setItem('accounts', JSON.stringify(this.list))
+    this.loading = false
   }
 }
 
@@ -98,7 +99,7 @@ class Account {
   description = $state('')
   dispatcherId = $state('')
   members: Record<string, string> = $state({})
-  reportInfos: Record<string, AccountClient.JunctionReport> = $state({})
+  reportInfos: HandlerTypes.AccountInfoResponse['Reports'] = $state([])
   reports: Record<string, Report> = $state({})
 
   loading = $state(false)
@@ -111,7 +112,7 @@ class Account {
     }
   }
 
-  #setFields = (accountId: string, fields: Partial<AccountClient.JunctionAccountInfo>) => {
+  #setFields = (accountId: string, fields: Partial<HandlerTypes.AccountInfoResponse>) => {
     this.id = accountId
     this.name = fields.Name ?? this.name
     this.description = fields.Description ?? this.description
@@ -268,22 +269,18 @@ export type ReportError = {
 
 class Dispatcher {
   name = $state('')
-  accountId = $state('')
-  reports: string[] = $state([])
+  reportIds: string[] = $state([])
   assignedEventCount = $state(0)
-  reportErrors: ReportError[] = $state([])
-  memoryUsed = $state(0)
+  memoryUsage = $state(0)
 
   constructor() {
     const info = localStorage.getItem('dispatcherInfo')
     if (info) {
       const parsed = JSON.parse(info)
       this.name = parsed.Name
-      this.accountId = parsed.AccountId
-      this.reports = parsed.Reports
+      this.reportIds = parsed.ReportsIds
       this.assignedEventCount = parsed.AssignedEventCount
-      this.reportErrors = parsed.ReportErrors
-      this.memoryUsed = parsed.MemoryUsed
+      this.memoryUsage = parsed.MemoryUsed
     }
   }
 
@@ -291,23 +288,11 @@ class Dispatcher {
     const info = await DispatcherClient.getInfo(dispatcherId)
 
     this.name = info.Name
-    this.accountId = info.AccountId
-    this.reports = info.Reports
+    this.reportIds = info.ReportIds
     this.assignedEventCount = info.AssignedEventCount
-    this.reportErrors = info.ReportErrors
-    this.memoryUsed = info.MemoryUsed
+    this.memoryUsage = info.MemoryUsage
 
-    localStorage.setItem(
-      'dispatcherInfo',
-      JSON.stringify({
-        Name: this.name,
-        AccountId: this.accountId,
-        Reports: this.reports,
-        Assigned: this.assignedEventCount,
-        ReportErrors: this.reportErrors,
-        MemoryUsed: this.memoryUsed
-      })
-    )
+    localStorage.setItem('dispatcherInfo', JSON.stringify(info))
   }
 }
 

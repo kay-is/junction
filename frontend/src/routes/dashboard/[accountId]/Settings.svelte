@@ -157,9 +157,9 @@
     </ButtonGroup>
     <ButtonGroup class="w-full">
       <InputAddon>Memory&nbsp;Usage</InputAddon>
-      <Input value={Math.round(AppState.dispatcher.memoryUsed / 1024) + ' MB'} class="font-mono" />
+      <Input value={Math.round(AppState.dispatcher.memoryUsage / 1024) + ' MB'} class="font-mono" />
     </ButtonGroup>
-    {#each AppState.dispatcher.reports as reportProcessId}
+    {#each AppState.dispatcher.reportIds as reportProcessId}
       <ButtonGroup class="w-full">
         <InputAddon>Report&nbsp;ID</InputAddon>
         <Input value={reportProcessId} class="font-mono" />
