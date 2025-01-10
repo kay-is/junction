@@ -12,3 +12,6 @@ export type {
   AccountInfoResponse,
   AccountUpdateInfoResponse,
 } from "./account/handlers.info"
+
+export type { ReportInfoResponse } from "./reports/top-pages/handlers.info"
+export type { GetRecordsResponse } from "./reports/top-pages/handlers.records"

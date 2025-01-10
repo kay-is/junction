@@ -9,7 +9,8 @@ declare const ProcessedEvents: number
 declare const ActiveRecords: number
 declare const ActiveSessions: number
 
-type JunctionReportInfo = {
+export type ReportInfoResponse = {
+  Id: string
   Name: string
   DispatcherId: string
   RecordsMaxAge: number
@@ -20,7 +21,8 @@ type JunctionReportInfo = {
 }
 
 export const info = Utils.createHandler({
-  handler: (): JunctionReportInfo => ({
+  handler: (): ReportInfoResponse => ({
+    Id: ao.env.Process.Id,
     Name,
     DispatcherId,
     RecordsMaxAge,

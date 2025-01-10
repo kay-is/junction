@@ -1,3 +1,5 @@
+export const getProcessId = () => ao.env.Process.Id
+
 if (ao.env.Process.Tags.Name && Name === "aos") Name = ao.env.Process.Tags.Name
 export const getName = () => Name
 export const setName = (newName: string) => {

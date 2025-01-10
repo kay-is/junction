@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AppState from '$lib/appState.svelte'
+  import AppState from '$lib/state/app.svelte'
   import { Section, HeroHeader } from 'flowbite-svelte-blocks'
   import {
     P,
@@ -19,28 +19,18 @@
 
   const getStarted = async () => {
     await AppState.wallet.connect()
-    showAccountsModal = true
+    if (AppState.wallet.connected) {
+      showAccountsModal = true
+      await AppState.registry.load()
+    }
   }
 
   let newAccountName = $state('')
   const createAccount = async (e: Event) => {
     e.preventDefault()
-    await AppState.accounts.register(newAccountName)
-    const accountNameSnapshot = $state.snapshot(newAccountName)
+    await AppState.registry.register(newAccountName, '')
     newAccountName = ''
-
-    const interval = setInterval(async () => {
-      await AppState.accounts.load()
-      const newAccount = AppState.accounts.list.find(
-        (account) => account.name === accountNameSnapshot && account.status === 'ready'
-      )
-      if (newAccount) clearInterval(interval)
-    }, 10000)
   }
-
-  $effect(() => {
-    if (AppState.wallet.connected) AppState.accounts.load()
-  })
 </script>
 
 <div class="pt-40">
@@ -64,20 +54,15 @@
 </div>
 
 <Modal title="Accounts" bind:open={showAccountsModal}>
-  {#if AppState.accounts.list.length === 0}
-    <P class="mb-4 text-lg">You are not a team member of any accounts yet.</P>
-    <P class="text-lg">Create your own to get started!</P>
+  {#if AppState.registry.accounts.length === 0}
+    <P class="mb-4 text-lg">You are not a team member of any account yet.</P>
+    <P class="text-lg">Create one to get started!</P>
   {:else}
     <P class="text-lg">You are a team member of the following accounts:</P>
     <Listgroup>
-      {#each AppState.accounts.list as account}
+      {#each AppState.registry.accounts as account}
         <ListgroupItem>
-          {#if account.status === 'pending'}
-            <span class="text-lg">{account.name} <Spinner size={5} /></span>
-            <Badge color="yellow">initializing</Badge>
-          {:else}
-            <A href="dashboard/{account.id}" class="text-lg">{account.name}</A>
-          {/if}
+          <A href="dashboard/{account.processId}" class="text-lg">{account.name}</A>
         </ListgroupItem>
       {/each}
     </Listgroup>
@@ -89,17 +74,21 @@
         type="text"
         placeholder="Enter account name..."
         bind:value={newAccountName}
+        disabled={!!AppState.registry.loading}
         class="text-lg"
         required
       />
       <Button
         type="submit"
         onclick={createAccount}
-        disabled={!newAccountName}
+        disabled={!newAccountName || !!AppState.registry.loading}
         color="primary"
         class="w-full text-lg"
       >
         Create New Account
+        {#if AppState.registry.loading}
+          &nbsp;<Spinner />
+        {/if}
       </Button>
     </ButtonGroup>
     <Helper>Initializing a new account can take a minute.</Helper>

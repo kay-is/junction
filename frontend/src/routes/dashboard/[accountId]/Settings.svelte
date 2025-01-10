@@ -1,16 +1,14 @@
 <script lang="ts">
   import { Button, ButtonGroup, Heading, Input, InputAddon, P, Spinner } from 'flowbite-svelte'
-  import AppState from '$lib/appState.svelte'
-  import * as AoClient from '$lib/aoClient'
-  const accountId = document.location.pathname.split('/').pop()
-  if (accountId) AppState.account.load(accountId)
+  import AppState from '$lib/state/app.svelte'
+  import * as AoClient from '$lib/clients/ao'
 
   const ReportCodeTxId = 'cYAhtE8HtuGl0VNoW4DBN8dsdKcDon7fhA1ZtM-2iIc'
   const addReport = (name: string) => async () => {
     await AppState.account.addReport(name, ReportCodeTxId)
 
     const interval = setInterval(async () => {
-      if (accountId) await AppState.account.load(accountId)
+      await AppState.account.load()
       const newReport = AppState.account.reportInfos[name]
       if (newReport && newReport.status === 'ready') clearInterval(interval)
     }, 10000)

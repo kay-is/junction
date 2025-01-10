@@ -4,6 +4,7 @@ import * as Utils from "../common/utilities"
 import * as ProcessState from "./process.state"
 
 export type AccountInfoResponse = {
+  Id: string
   Name: string
   Description: string
   Members: ReturnType<typeof Utils.getMembers>
@@ -16,6 +17,7 @@ export type AccountInfoResponse = {
 type GetInfoFunction = (this: void) => AccountInfoResponse
 
 const getInfo: GetInfoFunction = () => ({
+  Id: ProcessState.getProcessId(),
   Name: ProcessState.getName(),
   Description: ProcessState.getDescription(),
   Members: Utils.getMembers(),

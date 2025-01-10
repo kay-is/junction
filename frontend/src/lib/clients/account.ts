@@ -1,7 +1,7 @@
-import AppState from './appState.svelte'
-import * as AoClient from './aoClient'
-import * as CodeRegistryClient from './codeRegistryClient'
-import * as HandlerTypes from './handlerTypes'
+import AppState from '../state/app.svelte'
+import * as AoClient from './ao'
+import * as CodeRegistryClient from './codeRegistry'
+import * as HandlerTypes from './handlers'
 
 type JunctionAccountConfig = {
   Name: string

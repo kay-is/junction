@@ -1,6 +1,6 @@
-import * as AoClient from './aoClient'
+import * as AoClient from './ao'
 import * as Constants from './constants'
-import * as HandlerTypes from './handlerTypes'
+import * as HandlerTypes from './handlers'
 
 export const getInfo = async () =>
   AoClient.request<HandlerTypes.CodeRegistryInfoResponse>({

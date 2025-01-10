@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Reporting from './Reporting.svelte'
   import Sidebar from '$lib/components/Sidebar.svelte'
+  import { Heading } from 'flowbite-svelte'
 </script>
 
 <div class="flex">
   <Sidebar />
-  <Reporting />
+  <Heading>Documentation</Heading>
 </div>

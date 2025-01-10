@@ -20,11 +20,13 @@ type AoRequest =
 export const request = async <ResponseData>(config: AoRequest): Promise<ResponseData> => {
   let result: Awaited<ReturnType<typeof AoConnect.dryrun>>
   if (config.dryrun) {
+    console.log('[AO] Dryrun to ' + config.processId)
     result = await AoConnect.dryrun({
       process: config.processId,
       tags: Object.entries(config.tags || {}).map(([name, value]) => ({ name, value }))
     })
   } else {
+    console.log('[AO] Message to ' + config.processId)
     const messageId = await AoConnect.message({
       process: config.processId,
       signer: AoConnect.createDataItemSigner(config.signer),
@@ -60,12 +62,12 @@ type AoSpawn = {
 }
 
 export const spawn = async (config: AoSpawn) => {
+  console.log('[AO] Spawning process...')
   const customTags = Object.entries(config.tags ?? {}).map(([name, value]) => ({ name, value }))
-  const tags = [{ name: 'On-Boot', value: config.codeTxId }, ...customTags]
   return await AoConnect.spawn({
     module: config.module ?? Constants.DEFAULT_MODULE,
-    scheduler: config.scheduler ?? Constants.DEFAULT_MODULE,
+    scheduler: config.scheduler ?? Constants.DEFAULT_SCHEDULER,
     signer: AoConnect.createDataItemSigner(config.signer),
-    tags
+    tags: [{ name: 'On-Boot', value: config.codeTxId }, ...customTags]
   })
 }

@@ -1,11 +1,8 @@
 <script lang="ts">
   import TopPagesReport from './TopPagesReport.svelte'
   import { Datepicker, Heading, P, Spinner } from 'flowbite-svelte'
-  import AppState from '$lib/appState.svelte'
+  import AppState from '$lib/state/app.svelte'
   import HourlyChartReport from './OverallReport.svelte'
-
-  const accountId = document.location.pathname.split('/').pop()
-  if (accountId) AppState.account.load(accountId)
 
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)

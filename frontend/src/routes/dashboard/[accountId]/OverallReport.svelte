@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { JunctionRecord } from '$lib/appState.svelte'
+  import type { Records } from '$lib/state/report.svelte'
   import Chart from 'chart.js/auto'
   import { Heading, P } from 'flowbite-svelte'
   import { onMount } from 'svelte'
 
-  let { records }: { records: Record<string, JunctionRecord> } = $props()
+  let { records }: { records: Records } = $props()
 
   let recordsArray = Object.entries(records)
     .map(([timestamp, record]) => {
