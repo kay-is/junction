@@ -7,10 +7,12 @@
     ChartMixedOutline
   } from 'flowbite-svelte-icons'
   import { page } from '$app/state'
-  import AppState from '$lib/state/app.svelte'
+  import * as AppState from '$lib/state/app.svelte'
+
+  const appState = AppState.getContext()
 
   const logout = async () => {
-    await AppState.wallet.disconnect()
+    await appState.wallet.disconnect()
     window.location.href = '/'
   }
 </script>

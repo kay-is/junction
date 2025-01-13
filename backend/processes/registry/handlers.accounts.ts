@@ -1,12 +1,12 @@
 import * as json from "json"
 import * as Utils from "../common/utilities"
 
-type JunctionAccount = {
+type Account = {
   name: string
   processId: string
   members: string[]
 }
-declare var Accounts: Record<string, JunctionAccount>
+declare var Accounts: Record<string, Account>
 if (Accounts === undefined) Accounts = {}
 
 export const getAccountCount = () => Object.keys(Accounts).length
@@ -29,7 +29,7 @@ export const getAccountList = Utils.createHandler({
       .map(({ name, processId }) => ({ name, processId })),
 })
 
-export type CreateAccountResponse = JunctionAccount
+export type CreateAccountResponse = Account
 
 export const createAccount = Utils.createHandler({
   requiredTags: ["Name", "ProcessId"],

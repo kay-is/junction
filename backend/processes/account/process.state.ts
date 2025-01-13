@@ -41,3 +41,21 @@ export const removeReport = (name: string) => {
   Reports = Reports.filter((report) => report.name !== name)
   return removedRecord
 }
+
+export type ReportView = {
+  name: string
+  reportId: string
+}
+
+declare let ReportViews: ReportView[]
+if (ReportViews === undefined) ReportViews = []
+export const getReportViews = () => ReportViews
+export const addReportView = (reportView: ReportView) =>
+  ReportViews.push(reportView)
+export const removeReportView = (name: string) => {
+  const removedRepordView = ReportViews.find(
+    (reportView) => reportView.name === name
+  )
+  ReportViews = ReportViews.filter((reportView) => reportView.name !== name)
+  return removedRepordView
+}

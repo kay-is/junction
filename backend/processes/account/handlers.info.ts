@@ -1,4 +1,3 @@
-import * as proc from "./process"
 import * as json from "json"
 import * as Utils from "../common/utilities"
 import * as ProcessState from "./process.state"
@@ -11,6 +10,7 @@ export type AccountInfoResponse = {
   DispatcherId: string
   RegistryId: string
   Reports: ProcessState.Report[]
+  ReportViews: ProcessState.ReportView[]
   MemoryUsage: number
 }
 
@@ -24,6 +24,7 @@ const getInfo: GetInfoFunction = () => ({
   RegistryId: ProcessState.getRegistryId(),
   DispatcherId: ProcessState.getDispatcherId(),
   Reports: ProcessState.getReports(),
+  ReportViews: ProcessState.getReportViews(),
   MemoryUsage: collectgarbage("count"),
 })
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { JunctionRecord } from '$lib/appState.svelte'
+  import type { Records } from '$lib/state/report.svelte'
   import {
     Heading,
     Table,
@@ -10,7 +10,7 @@
     TableHeadCell
   } from 'flowbite-svelte'
 
-  let props: { records: Record<string, JunctionRecord> } = $props()
+  let props: { records: Records } = $props()
 
   let topPages: {
     name: string

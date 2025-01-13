@@ -1,8 +1,10 @@
 <script lang="ts">
   import TopPagesReport from './TopPagesReport.svelte'
   import { Datepicker, Heading, P, Spinner } from 'flowbite-svelte'
-  import AppState from '$lib/state/app.svelte'
+  import * as AppState from '$lib/state/app.svelte'
   import HourlyChartReport from './OverallReport.svelte'
+
+  const appState = AppState.getContext()
 
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
@@ -25,9 +27,9 @@
 
 <div class="container px-10 pt-5">
   <Heading class="mb-4">
-    {AppState.account.name}
+    {appState.account.name}
   </Heading>
-  <P>{AppState.account.description}</P>
+  <P>{appState.account.description}</P>
   <div class="mt-5 flex w-full justify-around">
     <div class="basis-1/4">
       <Datepicker
@@ -45,7 +47,7 @@
   </div>
 
   <div class="mt-5">
-    {#each Object.values(AppState.account.reports) as report}
+    {#each Object.values(appState.account.reports) as report}
       {#await report.loadRecords(reportStart, reportStop)}
         <div class="flex h-64 items-center justify-center">
           <P class="text-xl font-bold"><Spinner /> Loading Reports...</P>

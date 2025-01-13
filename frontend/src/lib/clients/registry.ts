@@ -1,4 +1,4 @@
-import AppState from '../state/app.svelte'
+import { appState } from '../state/app.svelte'
 import * as AoClient from './ao'
 import * as Constants from './constants'
 import * as HandlerTypes from './handlers'
@@ -15,7 +15,7 @@ export const createAccount = async (
   ProcessId: string
 ): Promise<HandlerTypes.CreateAccountResponse> =>
   AoClient.request({
-    signer: AppState.wallet.signer,
+    signer: appState.wallet.signer,
     processId: Constants.REGISTRY_PROCESS_ID,
     tags: { Action: 'CreateAccount', Name, ProcessId }
   })
@@ -24,5 +24,5 @@ export const getAccounts = async (): Promise<HandlerTypes.AccountListResponse> =
   AoClient.request({
     dryrun: true,
     processId: Constants.REGISTRY_PROCESS_ID,
-    tags: { Action: 'GetAccountList', Address: AppState.wallet.address }
+    tags: { Action: 'GetAccountList', Address: appState.wallet.address }
   })

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AppState from '$lib/state/app.svelte'
+  import * as AppState from '$lib/state/app.svelte'
   import { Section, HeroHeader } from 'flowbite-svelte-blocks'
   import {
     P,
@@ -15,20 +15,22 @@
     Spinner
   } from 'flowbite-svelte'
 
+  const appState = AppState.getContext()
+
   let showAccountsModal = $state(false)
 
   const getStarted = async () => {
-    await AppState.wallet.connect()
-    if (AppState.wallet.connected) {
+    await appState.wallet.connect()
+    if (appState.wallet.connected) {
       showAccountsModal = true
-      await AppState.registry.load()
+      await appState.registry.load()
     }
   }
 
   let newAccountName = $state('')
   const createAccount = async (e: Event) => {
     e.preventDefault()
-    await AppState.registry.register(newAccountName, '')
+    await appState.registry.register(newAccountName, '')
     newAccountName = ''
   }
 </script>
@@ -54,13 +56,13 @@
 </div>
 
 <Modal title="Accounts" bind:open={showAccountsModal}>
-  {#if AppState.registry.accounts.length === 0}
+  {#if appState.registry.accounts.length === 0}
     <P class="mb-4 text-lg">You are not a team member of any account yet.</P>
     <P class="text-lg">Create one to get started!</P>
   {:else}
     <P class="text-lg">You are a team member of the following accounts:</P>
     <Listgroup>
-      {#each AppState.registry.accounts as account}
+      {#each appState.registry.accounts as account}
         <ListgroupItem>
           <A href="dashboard/{account.processId}" class="text-lg">{account.name}</A>
         </ListgroupItem>
@@ -74,19 +76,19 @@
         type="text"
         placeholder="Enter account name..."
         bind:value={newAccountName}
-        disabled={!!AppState.registry.loading}
+        disabled={!!appState.registry.loading}
         class="text-lg"
         required
       />
       <Button
         type="submit"
         onclick={createAccount}
-        disabled={!newAccountName || !!AppState.registry.loading}
+        disabled={!newAccountName || !!appState.registry.loading}
         color="primary"
         class="w-full text-lg"
       >
         Create New Account
-        {#if AppState.registry.loading}
+        {#if appState.registry.loading}
           &nbsp;<Spinner />
         {/if}
       </Button>

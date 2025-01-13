@@ -1,4 +1,4 @@
-import AppState from '../state/app.svelte'
+import { appState } from '../state/app.svelte'
 import * as AoClient from './ao'
 import * as CodeRegistryClient from './codeRegistry'
 import * as HandlerTypes from './handlers'
@@ -14,6 +14,6 @@ export const create = async () => {
   const codeRegistryInfo = await CodeRegistryClient.getInfo()
   return AoClient.spawn({
     codeTxId: codeRegistryInfo.Environment['dispatcherCodeId'],
-    signer: AppState.wallet.signer
+    signer: appState.wallet.signer
   })
 }

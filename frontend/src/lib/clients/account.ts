@@ -1,4 +1,4 @@
-import AppState from '../state/app.svelte'
+import { appState } from '../state/app.svelte'
 import * as AoClient from './ao'
 import * as CodeRegistryClient from './codeRegistry'
 import * as HandlerTypes from './handlers'
@@ -13,7 +13,7 @@ export const create = async (accountConfig: JunctionAccountConfig) => {
   const codeRegistryInfo = await CodeRegistryClient.getInfo()
   return AoClient.spawn({
     codeTxId: codeRegistryInfo.Environment['accountCodeId'],
-    signer: AppState.wallet.signer,
+    signer: appState.wallet.signer,
     tags: accountConfig
   })
 }
@@ -42,7 +42,7 @@ type JunctionAccountInfo = {
 
 export const updateInfo = async (accountId: string, newInfo: Partial<JunctionAccountInfo>) =>
   AoClient.request<HandlerTypes.AccountUpdateInfoResponse>({
-    signer: AppState.wallet.signer,
+    signer: appState.wallet.signer,
     processId: accountId,
     tags: { Action: 'UpdateInfo' },
     data: newInfo
@@ -56,7 +56,7 @@ export type JunctionReportDefinition = {
 
 export const addReport = async (accountId: string, report: JunctionReportDefinition) =>
   AoClient.request({
-    signer: AppState.wallet.signer,
+    signer: appState.wallet.signer,
     processId: accountId,
     tags: {
       Action: 'Add-Report',
@@ -68,7 +68,7 @@ export const addReport = async (accountId: string, report: JunctionReportDefinit
 
 export const removeReport = async (accountId: string, reportName: string) =>
   AoClient.request({
-    signer: AppState.wallet.signer,
+    signer: appState.wallet.signer,
     processId: accountId,
     tags: { Action: 'Remove-Report', Name: reportName }
   })
