@@ -9,6 +9,7 @@ export class Dispatcher {
   assignedEventCount = $state(0)
   memoryUsage = $state(0)
   members = $state({})
+  membersArray = $derived.by(() => Object.entries(this.members))
   loading = $state(false)
 
   constructor(id: string) {
@@ -26,9 +27,9 @@ export class Dispatcher {
     this.members = fields.Members
   }
 
-  load = async (dispatcherId: string) => {
+  load = async () => {
     this.loading = true
-    const info = await DispatcherClient.getInfo(dispatcherId)
+    const info = await DispatcherClient.getInfo(this.id)
     this.#setFields(info)
     this.loading = false
     localStorage.setItem('dispatcherInfo', JSON.stringify(info))

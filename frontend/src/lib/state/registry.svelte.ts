@@ -1,6 +1,7 @@
 import * as RegistryClient from '../clients/registry'
 import * as DispatcherClient from '../clients/dispatcher'
 import * as AccountClient from '../clients/account'
+import * as Constants from '$lib/clients/constants'
 
 export type Accounts = Awaited<ReturnType<typeof RegistryClient.getAccounts>>
 
@@ -31,7 +32,8 @@ export class Registry {
     const accountId = await AccountClient.create({
       Name,
       Description,
-      DispatcherId: dispatcherId
+      DispatcherId: dispatcherId,
+      RegistryId: Constants.REGISTRY_PROCESS_ID
     })
     console.log('Account created:', accountId)
     const newAccount = await RegistryClient.createAccount(Name, accountId)

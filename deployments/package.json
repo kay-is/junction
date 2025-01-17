@@ -9,7 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@ao-tools/pulumi-ao": "^0.1.4",
+    "@ao-tools/pulumi-ao": "^0.1.6",
     "@pulumi/pulumi": "^3.113.0"
   }
 }

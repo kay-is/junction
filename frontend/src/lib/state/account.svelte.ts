@@ -9,10 +9,14 @@ export class Account {
   id = $state('')
   name = $state('')
   description = $state('')
-  dispatcher: Dispatcher | undefined = $state()
+  dispatcher: Dispatcher = $state(new Dispatcher(''))
   registryId = $state('')
   members: Record<string, string> = $state({})
+  membersArray = $derived.by(() => Object.entries(this.members))
   reports: Record<string, Report> = $state({})
+  reportsArray = $derived.by(() => Object.values(this.reports))
+  reportViews: Record<string, { name: string; reportId: string }> = $state({})
+  reportViewsArray = $derived.by(() => Object.values(this.reportViews))
   memoryUsage = $state(0)
   loading = $state(false)
 
@@ -22,11 +26,12 @@ export class Account {
       const account = JSON.parse(infoString)
       this.#setFields(account)
     }
+    $effect(() => {
+      if (page.params.accountId) this.load()
+    })
   }
 
   #cacheAccount = () => {
-    if (!this.dispatcher) throw new Error('Dispatcher not loaded.')
-
     const info: Info = {
       Id: this.id,
       Name: this.name,
@@ -34,8 +39,9 @@ export class Account {
       DispatcherId: this.dispatcher.id,
       RegistryId: this.registryId,
       Reports: Object.values(this.reports).map((r) => ({ processId: r.id, name: r.name })),
-      MemoryUsage: this.memoryUsage,
-      Members: this.members
+      ReportViews: Object.values(this.reportViews),
+      Members: this.members,
+      MemoryUsage: this.memoryUsage
     }
     localStorage.setItem('accountInfo', JSON.stringify(info))
   }
@@ -58,6 +64,7 @@ export class Account {
     this.loading = true
     const info = await AccountClient.getInfo(page.params.accountId)
     this.#setFields(info)
+    await this.dispatcher.load()
     this.loading = false
     this.#cacheAccount()
   }

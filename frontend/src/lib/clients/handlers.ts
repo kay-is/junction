@@ -1,1 +1,1 @@
-export type * from '../../../../backend/processes/handler.types'
+export type * from '../../../../backend/processes/common/handler.types'

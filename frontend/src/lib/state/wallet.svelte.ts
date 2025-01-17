@@ -7,7 +7,7 @@ const appInfo: AppInfo = {
 }
 
 export class Wallet {
-  static readonly isWeb3User = !!window.arweaveWallet
+  readonly isWeb3User = !!window.arweaveWallet
 
   connected = $state(false)
   address = $state('')
@@ -16,7 +16,7 @@ export class Wallet {
   loading = $state(false)
 
   constructor() {
-    this.#wallet = Wallet.isWeb3User ? window.arweaveWallet : new Othent({ appInfo })
+    this.#wallet = this.isWeb3User ? window.arweaveWallet : new Othent({ appInfo })
 
     this.#wallet
       .getActiveAddress()
@@ -24,7 +24,7 @@ export class Wallet {
         this.address = address
         this.connected = true
       })
-      .catch((_e) => {
+      .catch(() => {
         console.log('Wallet not connected!')
       })
   }

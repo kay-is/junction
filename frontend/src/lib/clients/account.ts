@@ -3,13 +3,14 @@ import * as AoClient from './ao'
 import * as CodeRegistryClient from './codeRegistry'
 import * as HandlerTypes from './handlers'
 
-type JunctionAccountConfig = {
+type AccountConfig = {
   Name: string
   Description: string
   DispatcherId: string
+  RegistryId: string
 }
 
-export const create = async (accountConfig: JunctionAccountConfig) => {
+export const create = async (accountConfig: AccountConfig) => {
   const codeRegistryInfo = await CodeRegistryClient.getInfo()
   return AoClient.spawn({
     codeTxId: codeRegistryInfo.Environment['accountCodeId'],
