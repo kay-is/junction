@@ -5,12 +5,8 @@ import * as Utils from "../../common/utilities"
 declare var DispatcherId: string
 if (DispatcherId === undefined) DispatcherId = ao.env.Process.Tags.DispatcherId
 
-declare var RecordsMaxAge: number
-if (RecordsMaxAge === undefined)
-  RecordsMaxAge = parseInt(ao.env.Process.Tags.RecordsMaxAge)
-
-declare var ProcessedEvents: number
-if (ProcessedEvents === undefined) ProcessedEvents = 0
+declare var ProcessedEventCount: number
+if (ProcessedEventCount === undefined) ProcessedEventCount = 0
 
 declare var ActiveRecords: number
 if (ActiveRecords === undefined) ActiveRecords = 0
@@ -93,7 +89,7 @@ export const calculate = Utils.createHandler({
       )
       const recordWithFirstPageView =
         Records[hourlyFirstViewTimestamp]?.[session.firstPage]
-      // record could be deleted if it's older than RecordsMaxAge
+      // record could be deleted if it's too old
       if (recordWithFirstPageView !== undefined)
         recordWithFirstPageView.singleViewVisitors--
     }
@@ -101,7 +97,7 @@ export const calculate = Utils.createHandler({
     clearOldSessions()
     clearOldRecords()
 
-    ProcessedEvents++
+    ProcessedEventCount++
   },
 })
 
@@ -176,14 +172,31 @@ const loadRecord = (timestamp: number, url: string): JunctionRecord => {
   return record
 }
 
+// -------------------- Memory Management --------------------
+
+import * as utils from ".utils"
+
+let memoryLimit = ao.env.Process.Tags["Memory-Limit"]
+if (memoryLimit === undefined) memoryLimit = "1-gb"
+
+const [memoryAmount, memoryUnit] = memoryLimit.split("-")
+let MEMORY_LIMIT_IN_KB = parseInt(memoryAmount)
+if (memoryUnit === "mb") MEMORY_LIMIT_IN_KB *= 1024
+else if (memoryUnit === "gb") MEMORY_LIMIT_IN_KB *= 1024 * 1024
+
+MEMORY_LIMIT_IN_KB *= 0.9 // 90% of the limit
+
 const clearOldRecords = () => {
-  const currentTimestamp = os.time()
-  const oldestTimestamp = currentTimestamp - RecordsMaxAge
-  for (let timestampKey of Object.keys(Records)) {
-    if (parseInt(timestampKey) < oldestTimestamp) {
-      const deletedRecordCount = Object.values(Records[timestampKey]).length
-      delete Records[timestampKey]
-      ActiveRecords -= deletedRecordCount
-    }
-  }
+  if (collectgarbage("count") < MEMORY_LIMIT_IN_KB) return
+
+  const timestamps = Object.keys(Records)
+
+  // sort timestamps in ascending order
+  timestamps.sort((a, b) => parseInt(a) - parseInt(b))
+
+  // get the oldest timestamp
+  const oldestTimestamp = timestamps[0]
+  const deletedRecordCount = Object.values(Records[oldestTimestamp]).length
+  delete Records[oldestTimestamp]
+  ActiveRecords -= deletedRecordCount
 }

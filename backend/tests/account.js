@@ -14,13 +14,17 @@ describe("Junction-Account Process", () => {
   const aoTestUtils = AoTestUtils.init(mem, ao, accountOwner.signer)
 
   it("spawns", async () => {
-    accountProcessId = await aoTestUtils.initProcess("build/account.lua", {
+    const result = await aoTestUtils.initProcess("build/account.lua", {
       Name: "TEST-ACCOUNT",
       Description: "TEST-DESCRIPTION",
       DispatcherId: "TEST-DISPATCHER-ID",
       RegistryId: "TEST-REGISTRY-ID",
     })
-    assert.equal(typeof accountProcessId, "string")
+
+    assert.equal(result.error, undefined)
+    assert.equal(result.processId.length, 43)
+
+    accountProcessId = result.processId
   })
 
   it("handles Info action dryrun", async () => {

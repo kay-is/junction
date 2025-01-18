@@ -9,7 +9,7 @@
     "strict": true
   },
   "tstl": {
-    "luaTarget": "JIT",
+    "luaTarget": "5.3",
     "luaBundleEntry": "process.ts",
     "luaBundle": "../../build/registry.lua",
     "luaLibImport": "require-minimal",

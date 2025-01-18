@@ -17,14 +17,14 @@ describe("Junction-Top-Pages-Report Process", () => {
   const aoTestUtils = AoTestUtils.init(mem, ao, reportOwner.signer)
 
   it("spawns", async () => {
-    reportProcessId = await aoTestUtils.initProcess(
-      "build/top-pages-report.lua",
-      {
-        DispatcherId: dispatcher.addr,
-        RecordsMaxAge: "" + NINETY_DAYS_IN_MS,
-      }
-    )
-    assert.equal(typeof reportProcessId, "string")
+    const result = await aoTestUtils.initProcess("build/top-pages-report.lua", {
+      DispatcherId: dispatcher.addr,
+    })
+
+    assert.equal(result.error, undefined)
+    assert.equal(result.processId.length, 43)
+
+    reportProcessId = result.processId
   })
 
   it("handles Info action dryrun", async () => {
@@ -37,10 +37,12 @@ describe("Junction-Top-Pages-Report Process", () => {
 
     aoTestUtils.assertSuccess(replyMessage)
     const processInfo = JSON.parse(replyMessage.Data)
+    assert.equal(processInfo.Id, reportProcessId)
+    assert.equal(processInfo.Name, "top-pages")
+    assert.equal(processInfo.Owner, reportOwner.addr)
+    assert.equal(processInfo.Members[reportOwner.addr], "Owner")
     assert.equal(processInfo.DispatcherId, dispatcher.addr)
-    assert.equal(processInfo.RecordsMaxAge, 7776000000)
-    assert.equal(processInfo.Name, "Junction-Top-Pages-Report")
-    assert.equal(processInfo.ProcessedEvents, 0)
+    assert.equal(processInfo.ProcessedEventCount, 0)
     assert.equal(processInfo.ActiveRecords, 0)
     assert.equal(processInfo.ActiveSessions, 0)
     assert.equal(typeof processInfo.MemoryUsage, "number")
@@ -71,7 +73,7 @@ describe("Junction-Top-Pages-Report Process", () => {
     })
 
     const processInfo = JSON.parse(infoResult.Messages[0].Data)
-    assert.equal(processInfo.ProcessedEvents, 1)
+    assert.equal(processInfo.ProcessedEventCount, 1)
     assert.equal(processInfo.ActiveRecords, 1)
   })
 
@@ -100,7 +102,7 @@ describe("Junction-Top-Pages-Report Process", () => {
     })
 
     const processInfo = JSON.parse(infoResult.Messages[0].Data)
-    assert.equal(processInfo.ProcessedEvents, 1)
+    assert.equal(processInfo.ProcessedEventCount, 1)
     assert.equal(processInfo.ActiveRecords, 1)
   })
 

@@ -17,8 +17,12 @@ describe("Junction-Registry Process", () => {
   const aoTestUtils = AoTestUtils.init(mem, ao, registryOwner.signer)
 
   it("spawns", async () => {
-    registryProcessId = await aoTestUtils.initProcess("build/registry.lua")
-    assert.equal(typeof registryProcessId, "string")
+    const result = await aoTestUtils.initProcess("build/registry.lua")
+
+    assert.equal(result.error, undefined)
+    assert.equal(result.processId.length, 43)
+
+    registryProcessId = result.processId
   })
 
   it("handles Info action dryrun", async () => {
@@ -83,11 +87,14 @@ describe("Junction-Registry Process", () => {
     assert.equal(accounts[0].processId, accountProcess.addr)
   })
 
-  it("handles UpdateAccount action message from account process", async () => {
+  it("handles UpdateAccount action message from account member", async () => {
     const updateResult = await aoTestUtils.messageResult({
       process: registryProcessId,
-      signer: accountProcess.signer,
-      tags: [{ name: "Action", value: "UpdateAccount" }],
+      signer: accountOwner.signer,
+      tags: [
+        { name: "Action", value: "UpdateAccount" },
+        { name: "Name", value: "TEST-ACCOUNT-NAME" },
+      ],
       data: JSON.stringify({
         name: "NEW-TEST-ACCOUNT-NAME",
         members: [accountOwner.addr, user.addr],

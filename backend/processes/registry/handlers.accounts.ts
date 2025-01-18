@@ -50,16 +50,17 @@ export type UpdateAccountResponse = void
 
 export const updateAccount = Utils.createHandler({
   dataRequired: true,
+  requiredTags: ["Name"],
   handler: (message) => {
-    const account = Object.values(Accounts).find(
-      (account) => account.processId === message.From
-    )
+    const account = Accounts[message.Tags.Name]
 
     if (account === undefined) return { Error: "Account not found." }
+    if (!account.members.includes(message.From))
+      return { Error: "Unauthorized." }
 
-    type Data = { name?: string; members?: string[] }
-    const data: Data = json.decode(message.Data)
+    const data: Partial<Account> = json.decode(message.Data)
     account.name = data.name ?? account.name
     account.members = data.members ?? account.members
+    account.processId = data.processId ?? account.processId
   },
 })

@@ -1,26 +1,28 @@
 import * as Utils from "../common/utilities"
 import * as Tracking from "./handlers.tracking"
 
-Name = "Junction-Dispatcher"
+Name = "dispatcher"
 
+declare var ReceivedEventCount: number
+declare var InvalidEventCount: number
 declare var AssignedEventCount: number
+declare var HistoricEventIds: string[]
 
-export type DispatcherInfoResponse = {
-  Id: string
-  Name: string
-  Members: ReturnType<typeof Utils.getMembers>
-  AssignedEventCount: number
+export interface DispatcherInfoResponse extends Utils.BasicInfo {
   ReportIds: ReturnType<typeof Tracking.getReportIds>
-  MemoryUsage: number
+  ReceivedEventCount: number
+  InvalidEventCount: number
+  AssignedEventCount: number
+  HistoricEventIds: string[]
 }
 
 export const info = Utils.createHandler({
   handler: (): DispatcherInfoResponse => ({
-    Id: ao.env.Process.Id,
-    Name,
-    Members: Utils.getMembers(),
-    AssignedEventCount: AssignedEventCount,
+    ...Utils.getBasicInfo(),
     ReportIds: Tracking.getReportIds(),
-    MemoryUsage: collectgarbage("count"),
+    ReceivedEventCount,
+    InvalidEventCount,
+    AssignedEventCount,
+    HistoricEventIds,
   }),
 })

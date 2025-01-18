@@ -1,5 +1,14 @@
 import * as Utils from "../common/utilities"
 
+// holds the last 1000 event IDs
+declare var HistoricEventIds: string[]
+if (HistoricEventIds === undefined) HistoricEventIds = []
+
+const recordEventId = (id: string) => {
+  HistoricEventIds.push(id)
+  if (HistoricEventIds.length > 1000) HistoricEventIds.shift()
+}
+
 declare var ReportIds: string[]
 if (ReportIds === undefined) ReportIds = []
 
@@ -35,20 +44,22 @@ export const removeReport = Utils.createHandler({
 
 export const track = Utils.createHandler({
   handler: (message) => {
-    const { Tags } = message
-
-    Tags.Action = "Calculate"
-    Tags.ad = message.From
-
-    if (ReportIds.length > 0) ao.send({ Target: ao.id, Tags })
+    if (message.Tags.ts === undefined) return { NoReply: true }
+    if (message.Tags.ev === undefined) return { NoReply: true }
+    // Message will be assigned to report processes that expect the Calculate action
+    message.Tags.Action = "Calculate"
+    message.Tags.ad = message.From
+    if (ReportIds.length > 0) ao.send({ Target: ao.id, Tags: message.Tags })
+    return { NoReply: true }
   },
 })
 
 export const calculate = Utils.createHandler({
   handler: (message) => {
-    if (message.From !== ao.id) return { Error: "Unauthorized" }
-
+    if (message.From !== ao.id) return { NoReply: true }
     ao.assign({ Processes: ReportIds, Message: message.Id })
     AssignedEventCount += ReportIds.length
+    recordEventId(message.Id)
+    return { NoReply: true }
   },
 })

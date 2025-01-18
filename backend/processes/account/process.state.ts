@@ -44,7 +44,7 @@ export const removeReport = (name: string) => {
 
 export type ReportView = {
   name: string
-  reportId: string
+  sourceReportName: string
 }
 
 declare let ReportViews: ReportView[]

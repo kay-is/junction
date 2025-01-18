@@ -1,10 +1,12 @@
 import * as Utils from "../common/utilities"
 import * as ProcessState from "./process.state"
 
+export type AccountAddReportResponse = void
+
 export const addReport = Utils.createHandler({
   protected: true,
   requiredTags: ["Name", "ProcessId"],
-  handler: (message) => {
+  handler: (message): AccountAddReportResponse => {
     ProcessState.addReport({
       processId: message.Tags.ProcessId,
       name: message.Tags.Name,
@@ -18,15 +20,17 @@ export const addReport = Utils.createHandler({
   },
 })
 
+export type AccountRemoveReportResponse = AccountAddReportResponse
+
 export const removeReport = Utils.createHandler({
   protected: true,
   requiredTags: ["Name"],
-  handler: (message) => {
+  handler: (message): AccountRemoveReportResponse | { Error: string } => {
     const removedReport = ProcessState.removeReport(message.Tags.Name)
     if (!removedReport) return { Error: "Report not found." }
 
     const relatedViews = ProcessState.getReportViews().filter(
-      (rv) => rv.reportId === removedReport.processId
+      (rv) => rv.sourceReportName === removedReport.name
     )
 
     if (!message.Tags.PurgeReportViews && relatedViews.length > 0)
@@ -48,15 +52,15 @@ export const removeReport = Utils.createHandler({
 
 export const addReportView = Utils.createHandler({
   protected: true,
-  requiredTags: ["Name", "ReportId"],
+  requiredTags: ["Name", "SourceReportName"],
   handler: (message) => {
     const relatedReport = ProcessState.getReports().find(
-      (r) => r.processId === message.Tags.ReportId
+      (r) => r.name === message.Tags.SourceReportName
     )
-    if (!relatedReport) return { Error: "ReportId not found." }
+    if (!relatedReport) return { Error: "Source report not found." }
     ProcessState.addReportView({
       name: message.Tags.Name,
-      reportId: message.Tags.ReportId,
+      sourceReportName: message.Tags.SourceReportName,
     })
   },
 })
@@ -66,6 +70,6 @@ export const removeReportView = Utils.createHandler({
   requiredTags: ["Name"],
   handler: (message) => {
     const removedReport = ProcessState.removeReport(message.Tags.Name)
-    if (!removedReport) return { Error: "Report not found." }
+    if (!removedReport) return { Error: "Report view not found." }
   },
 })

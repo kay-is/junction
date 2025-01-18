@@ -23,7 +23,13 @@ export const init = (mem, aoconnect, signer) => {
         data: code,
       })
 
-      return processId
+      const spawnResults = await aoconnect.results({ process: processId })
+
+      const result = {}
+      if (spawnResults.edges[0].node.Error)
+        result.error = spawnResults.edges[0].node.Error
+      else result.processId = processId
+      return result
     },
 
     messageResult: async (message) => {

@@ -1,34 +1,26 @@
 import * as Utils from "../../common/utilities"
 
-Name = "Junction-Top-Pages-Report"
+Name = "top-pages"
 
 // Globals defined in handlers.calculate.ts
 declare const DispatcherId: string
-declare const RecordsMaxAge: number
-declare const ProcessedEvents: number
+declare const ProcessedEventCount: number
 declare const ActiveRecords: number
 declare const ActiveSessions: number
 
-export type ReportInfoResponse = {
-  Id: string
-  Name: string
+export interface ReportInfoResponse extends Utils.BasicInfo {
   DispatcherId: string
-  RecordsMaxAge: number
-  ProcessedEvents: number
+  ProcessedEventCount: number
   ActiveSessions: number
   ActiveRecords: number
-  MemoryUsage: number
 }
 
 export const info = Utils.createHandler({
   handler: (): ReportInfoResponse => ({
-    Id: ao.env.Process.Id,
-    Name,
+    ...Utils.getBasicInfo(),
     DispatcherId,
-    RecordsMaxAge,
-    ProcessedEvents,
+    ProcessedEventCount,
     ActiveSessions,
     ActiveRecords,
-    MemoryUsage: collectgarbage("count"),
   }),
 })

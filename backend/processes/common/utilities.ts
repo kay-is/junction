@@ -1,11 +1,17 @@
 import * as json from "json"
 
+export type HandlerResponse =
+  | { NoReply: true }
+  | { Error: string }
+  | Record<string, any>
+  | void
+
 export type createHandlerOptions = {
   handler: (
     this: void,
     message: ao.message.Received,
     environment?: ao.Ao["env"]
-  ) => any | void
+  ) => HandlerResponse
   requiredTags?: string[]
   dataRequired?: boolean
   protected?: boolean
@@ -35,28 +41,37 @@ export const createHandler: CreateHandlerFunction = (options) => (message) => {
   if (options.protected && Members[message.From] === undefined)
     return message.reply({ Status: "Error", Error: "Unauthorized" })
 
-  let missingTags = []
+  const missingInfo: {
+    tags: string[]
+    data: boolean
+  } = { tags: [], data: false }
 
   if (options.requiredTags) {
     for (let tag of options.requiredTags) {
-      if (!message.Tags[tag]) missingTags.push(tag)
+      if (!message.Tags[tag]) missingInfo.tags.push(tag)
     }
   }
 
-  if (options.dataRequired && !message.Data) missingTags.push("Data")
+  missingInfo.data = options.dataRequired === true && !message.Data
 
-  if (missingTags.length > 0) {
-    return message.reply({
-      Status: "Error",
-      Error: `Missing tags: ${missingTags.join(", ")}`,
-    })
+  if (missingInfo.tags.length > 0 || missingInfo.data) {
+    let errorMessage = ""
+
+    if (missingInfo.tags.length > 0)
+      errorMessage += `Missing tags: ${missingInfo.tags.join(", ")}. `
+
+    if (missingInfo.data) errorMessage += "Missing Data."
+
+    return message.reply({ Status: "Error", Error: errorMessage })
   }
 
   const replyData = options.handler(message)
 
   if (replyData === undefined) return message.reply({ Status: "Success" })
 
-  if (replyData.Error)
+  if ("NoReply" in replyData) return
+
+  if ("Error" in replyData)
     return message.reply({ Status: "Error", Error: replyData.Error })
 
   return message.reply({
@@ -64,3 +79,19 @@ export const createHandler: CreateHandlerFunction = (options) => (message) => {
     Tags: { ["Content-Type"]: "application/json", Status: "Success" },
   })
 }
+
+export type BasicInfo = {
+  Id: string
+  Name: string
+  Members: Record<string, string>
+  Owner: string
+  MemoryUsage: number
+}
+
+export const getBasicInfo = (): BasicInfo => ({
+  Id: ao.env.Process.Id,
+  Name,
+  Members: getMembers(),
+  Owner,
+  MemoryUsage: collectgarbage("count"),
+})

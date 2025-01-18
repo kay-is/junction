@@ -14,8 +14,12 @@ describe("Junction-Dispatcher Process", () => {
   const aoTestUtils = AoTestUtils.init(mem, ao, dispatcherOwner.signer)
 
   it("spawns", async () => {
-    dispatcherProcessId = await aoTestUtils.initProcess("build/dispatcher.lua")
-    assert.equal(typeof dispatcherProcessId, "string")
+    const result = await aoTestUtils.initProcess("build/dispatcher.lua")
+
+    assert.equal(result.error, undefined)
+    assert.equal(result.processId.length, 43)
+
+    dispatcherProcessId = result.processId
   })
 
   it("handles Info action dryrun", async () => {
@@ -26,29 +30,9 @@ describe("Junction-Dispatcher Process", () => {
 
     aoTestUtils.assertSuccess(result.Messages[0])
     const processInfo = JSON.parse(result.Messages[0].Data)
-    assert.equal(processInfo.Name, "Junction-Dispatcher")
+    assert.equal(processInfo.Name, "dispatcher")
     assert.equal(processInfo.ReportIds.length, 0)
     assert.equal(typeof processInfo.MemoryUsage, "number")
-  })
-
-  it("handles Track action message from user", async () => {
-    const result = await aoTestUtils.messageResult({
-      process: dispatcherProcessId,
-      signer: user.signer,
-      tags: [{ name: "Action", value: "Track" }],
-    })
-
-    aoTestUtils.assertSuccess(result.Messages[0])
-  })
-
-  it("ignores Calculate action message from user", async () => {
-    const result = await aoTestUtils.messageResult({
-      process: dispatcherProcessId,
-      signer: user.signer,
-      tags: [{ name: "Action", value: "Calculate" }],
-    })
-    aoTestUtils.assertError(result.Messages[0])
-    assert.equal(result.Assignments.length, 0)
   })
 
   it("ignores AddReport action message from user", async () => {
@@ -115,6 +99,30 @@ describe("Junction-Dispatcher Process", () => {
     aoTestUtils.assertSuccess(infoResult.Messages[0])
     const processInfo = JSON.parse(infoResult.Messages[0].Data)
     assert.equal(processInfo.ReportIds.length, 1)
+  })
+
+  it("handles Track action message from user", async () => {
+    const result = await aoTestUtils.messageResult({
+      process: dispatcherProcessId,
+      signer: user.signer,
+      tags: [
+        { name: "Action", value: "Track" },
+        { name: "ev", value: "test" },
+        { name: "ts", value: "123" },
+      ],
+    })
+
+    assert.equal(result.Messages[0].Target, dispatcherProcessId)
+  })
+
+  it("ignores Calculate action message from user", async () => {
+    const result = await aoTestUtils.messageResult({
+      process: dispatcherProcessId,
+      signer: user.signer,
+      tags: [{ name: "Action", value: "Calculate" }],
+    })
+
+    assert.equal(result.Assignments.length, 0)
   })
 
   it("handles RemoveReport action message from owner", async () => {

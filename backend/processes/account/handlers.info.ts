@@ -2,30 +2,23 @@ import * as json from "json"
 import * as Utils from "../common/utilities"
 import * as ProcessState from "./process.state"
 
-export type AccountInfoResponse = {
-  Id: string
-  Name: string
+export interface AccountInfoResponse extends Utils.BasicInfo {
   Description: string
-  Members: ReturnType<typeof Utils.getMembers>
   DispatcherId: string
   RegistryId: string
   Reports: ProcessState.Report[]
   ReportViews: ProcessState.ReportView[]
-  MemoryUsage: number
 }
 
 type GetInfoFunction = (this: void) => AccountInfoResponse
 
 const getInfo: GetInfoFunction = () => ({
-  Id: ProcessState.getProcessId(),
-  Name: ProcessState.getName(),
+  ...Utils.getBasicInfo(),
   Description: ProcessState.getDescription(),
-  Members: Utils.getMembers(),
   RegistryId: ProcessState.getRegistryId(),
   DispatcherId: ProcessState.getDispatcherId(),
   Reports: ProcessState.getReports(),
   ReportViews: ProcessState.getReportViews(),
-  MemoryUsage: collectgarbage("count"),
 })
 
 export const info = Utils.createHandler({ handler: getInfo })
@@ -38,19 +31,7 @@ export const updateInfo = Utils.createHandler({
   handler: (message): AccountUpdateInfoResponse => {
     const data: AccountUpdateInfoResponse = json.decode(message.Data)
 
-    let registryUpdateRequired = false
-    if (data.Name !== undefined) {
-      Name = data.Name
-      registryUpdateRequired = true
-    }
-    if (data.Members !== undefined) {
-      const members = Utils.getMembers()
-      for (const address of Object.keys(members)) Utils.removeMember(address)
-      for (const [address, name] of Object.entries(data.Members))
-        Utils.setMember(address, name)
-      registryUpdateRequired = true
-    }
-
+    if (data.Name !== undefined) Name = data.Name
     if (data.Description !== undefined)
       ProcessState.setDescription(data.Description)
     if (data.DispatcherId !== undefined)
@@ -63,13 +44,11 @@ export const updateInfo = Utils.createHandler({
       }
       for (const report of data.Reports) ProcessState.addReport(report)
     }
-
-    if (registryUpdateRequired === true) {
-      ao.send({
-        Target: ProcessState.getRegistryId(),
-        Action: "UpdateAccount",
-        Data: json.encode({ name: Name, members: Utils.getMembers() }),
-      })
+    if (data.Members !== undefined) {
+      const members = Utils.getMembers()
+      for (const address of Object.keys(members)) Utils.removeMember(address)
+      for (const [address, name] of Object.entries(data.Members))
+        Utils.setMember(address, name)
     }
 
     return getInfo()

@@ -13,8 +13,12 @@ describe("Junction-Code-Registry Process", () => {
   const aoTestUtils = AoTestUtils.init(mem, ao, processOwner.signer)
 
   it("spawns", async () => {
-    processId = await aoTestUtils.initProcess("build/code-registry.lua")
-    assert.equal(typeof processId, "string")
+    const result = await aoTestUtils.initProcess("build/code-registry.lua")
+
+    assert.equal(result.error, undefined)
+    assert.equal(result.processId.length, 43)
+
+    processId = result.processId
   })
 
   it("handles Info action dryrun", async () => {

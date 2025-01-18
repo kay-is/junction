@@ -13,5 +13,10 @@ export type {
   AccountUpdateInfoResponse,
 } from "../account/handlers.info"
 
+export type {
+  AccountAddReportResponse,
+  AccountRemoveReportResponse,
+} from "../account/handlers.reports"
+
 export type { ReportInfoResponse } from "../reports/top-pages/handlers.info"
 export type { GetRecordsResponse } from "../reports/top-pages/handlers.records"
