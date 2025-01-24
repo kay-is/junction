@@ -15,12 +15,17 @@ const dispatcherCode = new ao.ProcessCode("dispatcher-code", {
   filePath: "../backend/build/dispatcher.lua",
 })
 
-const topPagesReportCode = new ao.ProcessCode("top-pages-report-code", {
-  name: `top-pages-report-code-${stackName}`,
-  filePath: "../backend/build/top-pages-report.lua",
+const reeportTopPagesCode = new ao.ProcessCode("report-top-pages-code", {
+  name: `report-top-pages-code-${stackName}`,
+  filePath: "../backend/build/report-top-pages.lua",
 })
 
-// ---- Code for protected proceesses----
+const reportDevicesCode = new ao.ProcessCode("report-devices-code", {
+  name: `report-devices-code-${stackName}`,
+  filePath: "../backend/build/report-top-pages.lua",
+})
+
+// ---- Code for protected processes----
 
 const codeRegistryCode = new ao.ProcessCode("code-registry-code", {
   name: `code-registry-code-${stackName}`,
@@ -30,15 +35,14 @@ const codeRegistryProcess = new ao.Process("code-registry-process", {
   name: `code-registry-process-${stackName}`,
   codeId: codeRegistryCode.id,
   environment: {
-    accountCodeId: accountCode.id,
-    dispatcherCodeId: dispatcherCode.id,
-    topPagesReportCodeId: topPagesReportCode.id,
+    account: accountCode.id,
+    dispatcher: dispatcherCode.id,
+    "top-pages": reeportTopPagesCode.id,
+    devices: reportDevicesCode.id
   },
 })
 export const codeRegistryProcessId = codeRegistryProcess.id
 export const codeRegistryAoLinkUrl = pulumi.interpolate`https://ao.link/#/entity/${codeRegistryProcess.id}`
-
-// ---- REGISTRY ----
 
 const registryCode = new ao.ProcessCode("registry-code", {
   name: `registry-code-${stackName}`,
