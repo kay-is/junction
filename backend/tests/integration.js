@@ -70,7 +70,7 @@ describe("Junction", () => {
 
     it("spawns a report", async () => {
       const result = await aoTestUtilsAccount.initProcess(
-        "build/top-pages-report.lua",
+        "build/report-top-pages.lua",
         {
           DispatcherId: dispatcherProcessId,
           RecordsMaxAge: "" + NINETY_DAYS_IN_MS,
@@ -201,8 +201,8 @@ describe("Junction", () => {
 
       const recordArray = Object.entries(records)
       assert.equal(recordArray.length, 1)
-      assert.equal(recordArray[0][1]["https://example.com/"].pageViews, 3)
-      assert.equal(recordArray[0][1]["https://example.com/"].visitors, 1)
+      assert.equal(recordArray[0][1]["/"].views, 3)
+      assert.equal(recordArray[0][1]["/"].visitors, 1)
     })
   })
 })

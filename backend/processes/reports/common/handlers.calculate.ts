@@ -1,3 +1,4 @@
+import { encode } from "json"
 import * as Utils from "../../common/utilities"
 
 // -------------------- Report State --------------------
@@ -14,9 +15,9 @@ if (ActiveRecords === undefined) ActiveRecords = 0
 type JunctionSession = {
   id: string
   startedAt: number
-  pages: Record<string, boolean>
-  firstPage: string
-  firstPageTimestamp: number
+  viewedItems: Record<string, boolean>
+  firstViewedItem: string
+  firstViewTimestamp: number
 }
 
 declare var Sessions: Record<string, JunctionSession>
@@ -26,18 +27,24 @@ declare var ActiveSessions: number
 if (ActiveSessions === undefined) ActiveSessions = 0
 
 type JunctionRecord = {
-  pageViews: number
+  views: number
+  ethViews: number
+  solViews: number
+  arViews: number
   visitors: number
   ethVisitors: number
   solVisitors: number
   arVisitors: number
   singleViewVisitors: number
-  sumLoadingTime: number
+  [additionalMetricKey: string]: number | string
 }
 
-type PageUrl = string
+type AggregationKey = string
 type Timestamp = string
-export type RecordsType = Record<Timestamp, Record<PageUrl, JunctionRecord>>
+export type RecordsType = Record<
+  Timestamp,
+  Record<AggregationKey, JunctionRecord>
+>
 declare var Records: RecordsType
 if (Records === undefined) Records = {}
 
@@ -46,59 +53,87 @@ type JunctionEvent = {
   ts: number // Timestamp
   ev: string // Event name
   url: string // Page URL
+  la: string // Language
+  co: string // Cookies enabled
+  tz: string // Timezone
+  ua: string // User agent
   "j-lt": number // Loading time
   eth: string // Ethereum wallet name
+  "eth-con": string // Ethereum wallet connected
+  "eth-chain": string // Ethereum chain ID
   sol: string // Solana wallet name
+  "sol-con": string // Solana wallet connected
   ar: string // Arweave wallet name
+  "ar-ver": string // Arweave wallet version
+  "ar-con": string // Arweave wallet connected
 }
-
 // -------------------- Handler Functions --------------------
 
-export const calculate = Utils.createHandler({
-  handler: (message) => {
-    if (message.From !== DispatcherId) return { Error: "Unauthorized." }
+export type CreateCalculateHandlerOptions = {
+  eventType: string
+  extractAggregationValue: (event: JunctionEvent) => string
+  calculateAdditionalMetrics?: (
+    record: JunctionRecord,
+    event: JunctionEvent,
+    session: JunctionSession
+  ) => void
+}
+export const createCalculateHandler = (
+  options: CreateCalculateHandlerOptions
+) =>
+  Utils.createHandler({
+    handler: (message) => {
+      if (message.From !== DispatcherId) return { Error: "Unauthorized." }
 
-    const event = parseEvent(message)
+      const event = parseEvent(message)
 
-    if (event.ev !== "pv") return
+      if (event.ev !== options.eventType) return
 
-    const session = loadSession(event)
-    const record = loadRecord(event.ts, event.url)
+      const session = loadSession(event)
 
-    record.pageViews++
+      const aggregationValue = options.extractAggregationValue(event)
+      const record = loadRecord(event.ts, aggregationValue)
 
-    record.sumLoadingTime += event["j-lt"]
+      record.views++
+      if (event.eth !== undefined) record.ethViews++
+      if (event.sol !== undefined) record.solViews++
+      if (event.ar !== undefined) record.arViews++
 
-    if (!session.pages[event.url]) {
-      session.pages[event.url] = true
-      record.visitors++
+      if (!session.viewedItems[aggregationValue]) {
+        session.viewedItems[aggregationValue] = true
+        record.visitors++
 
-      if (event.eth !== undefined) record.ethVisitors++
-      if (event.sol !== undefined) record.solVisitors++
-      if (event.ar !== undefined) record.arVisitors++
-    }
+        if (event.eth !== undefined) record.ethVisitors++
+        if (event.sol !== undefined) record.solVisitors++
+        if (event.ar !== undefined) record.arVisitors++
+      }
 
-    if (session.firstPageTimestamp === 0) {
-      session.firstPageTimestamp = event.ts
-      session.firstPage = event.url
-      record.singleViewVisitors++
-    } else {
-      const hourlyFirstViewTimestamp = getHourlyTimestamp(
-        session.firstPageTimestamp
-      )
-      const recordWithFirstPageView =
-        Records[hourlyFirstViewTimestamp]?.[session.firstPage]
-      // record could be deleted if it's too old
-      if (recordWithFirstPageView !== undefined)
-        recordWithFirstPageView.singleViewVisitors--
-    }
+      if (session.firstViewTimestamp === 0) {
+        session.firstViewTimestamp = event.ts
+        session.firstViewedItem = aggregationValue
+        record.singleViewVisitors++
+      } else {
+        const timestampKey = "" + getHourlyTimestamp(session.firstViewTimestamp)
+        const recordWithFirstView =
+          Records[timestampKey]?.[session.firstViewedItem]
 
-    clearOldSessions()
-    clearOldRecords()
+        // record could be deleted if it's too old
+        if (recordWithFirstView !== undefined)
+          recordWithFirstView.singleViewVisitors = Math.max(
+            recordWithFirstView.singleViewVisitors - 1,
+            0
+          )
+      }
 
-    ProcessedEventCount++
-  },
-})
+      if (options.calculateAdditionalMetrics)
+        options.calculateAdditionalMetrics(record, event, session)
+
+      clearOldSessions()
+      clearOldRecords()
+
+      ProcessedEventCount++
+    },
+  })
 
 // -------------------- Utility Functions --------------------
 
@@ -111,9 +146,18 @@ const parseEvent = (message: ao.message.Received): JunctionEvent => ({
   ev: message.Tags.ev,
   url: message.Tags.url,
   "j-lt": parseInt(message.Tags["j-lt"]),
+  la: message.Tags.la,
+  co: message.Tags.co,
+  tz: message.Tags.tz,
+  ua: message.Tags.ua,
   eth: message.Tags.eth,
+  "eth-con": message.Tags["eth-con"],
+  "eth-chain": message.Tags["eth-chain"],
   sol: message.Tags.sol,
+  "sol-con": message.Tags["sol-con"],
   ar: message.Tags.ar,
+  "ar-ver": message.Tags["ar-ver"],
+  "ar-con": message.Tags["ar-con"],
 })
 
 const loadSession = (event: JunctionEvent): JunctionSession => {
@@ -122,9 +166,9 @@ const loadSession = (event: JunctionEvent): JunctionSession => {
     session = {
       id: event.ad,
       startedAt: event.ts,
-      pages: {},
-      firstPage: "",
-      firstPageTimestamp: 0,
+      viewedItems: {},
+      firstViewedItem: "",
+      firstViewTimestamp: 0,
     }
     Sessions[event.ad] = session
     ActiveSessions++
@@ -145,7 +189,13 @@ const clearOldSessions = () => {
   }
 }
 
-const loadRecord = (timestamp: number, url: string): JunctionRecord => {
+/**
+ * The recordDimension is the dimension that we want to aggregate the data by.
+ */
+const loadRecord = (
+  timestamp: number,
+  aggregationValue: string
+): JunctionRecord => {
   const hourlyTimestamp = getHourlyTimestamp(timestamp)
   const hourlyTimestampKey = "" + hourlyTimestamp
 
@@ -155,18 +205,20 @@ const loadRecord = (timestamp: number, url: string): JunctionRecord => {
     Records[hourlyTimestampKey] = recordsOfOneHour
   }
 
-  let record = recordsOfOneHour[url]
+  let record = recordsOfOneHour[aggregationValue]
   if (!record) {
     record = {
-      pageViews: 0,
+      views: 0,
+      ethViews: 0,
+      solViews: 0,
+      arViews: 0,
       visitors: 0,
       ethVisitors: 0,
       solVisitors: 0,
       arVisitors: 0,
       singleViewVisitors: 0,
-      sumLoadingTime: 0,
     }
-    recordsOfOneHour[url] = record
+    recordsOfOneHour[aggregationValue] = record
     ActiveRecords++
   }
 

@@ -1,7 +1,5 @@
 import * as Utils from "../../common/utilities"
 
-Name = "top-pages"
-
 // Globals defined in handlers.calculate.ts
 declare const DispatcherId: string
 declare const ProcessedEventCount: number

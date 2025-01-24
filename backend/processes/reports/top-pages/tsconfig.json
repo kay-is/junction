@@ -15,7 +15,7 @@
   "tstl": {
     "luaTarget": "5.3",
     "luaBundleEntry": "process.ts",
-    "luaBundle": "../../../build/top-pages-report.lua",
+    "luaBundle": "../../../build/report-top-pages.lua",
     "luaLibImport": "require-minimal",
     "noHeader": true
   }

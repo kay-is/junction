@@ -6,9 +6,7 @@ import * as AoTestUtils from "./utilities.js"
 const mem = new ArMem()
 const ao = connect(mem)
 
-const NINETY_DAYS_IN_MS = 1000 * 60 * 60 * 24 * 90
-
-describe("Junction-Top-Pages-Report Process", () => {
+describe("Report-Top-Pages Process", () => {
   let reportProcessId
   const reportOwner = acc[0]
   const dispatcher = acc[1]
@@ -17,7 +15,7 @@ describe("Junction-Top-Pages-Report Process", () => {
   const aoTestUtils = AoTestUtils.init(mem, ao, reportOwner.signer)
 
   it("spawns", async () => {
-    const result = await aoTestUtils.initProcess("build/top-pages-report.lua", {
+    const result = await aoTestUtils.initProcess("build/report-top-pages.lua", {
       DispatcherId: dispatcher.addr,
     })
 
