@@ -22,6 +22,7 @@
   "author": "Kay Plößer",
   "license": "ISC",
   "devDependencies": {
+    "@ao-tools/tstl-ao": "^0.2.5",
     "@typescript-to-lua/language-extensions": "^1.19.0",
     "concurrently": "^9.1.2",
     "lua-types": "^2.13.1",
