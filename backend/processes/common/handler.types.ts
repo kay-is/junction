@@ -18,5 +18,8 @@ export type {
   AccountRemoveReportResponse,
 } from "../account/handlers.reports"
 
-export type { ReportInfoResponse } from "../reports/top-pages/handlers.info"
-export type { GetRecordsResponse } from "../reports/top-pages/handlers.records"
+export type { ReportInfoResponse } from "../reports/common/handlers.info"
+import type { JunctionRecord } from "../reports/common/handlers.calculate"
+import type { RecordsType } from "../reports/common/handlers.records"
+
+export type GetRecordsResponse = RecordsType<JunctionRecord>
