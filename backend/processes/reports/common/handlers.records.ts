@@ -1,11 +1,13 @@
 import * as Utils from "../../common/utilities"
 
-type RecordsType = Record<string, Record<string, unknown>>
-declare const Records: RecordsType
+export type RecordsType<T> = Record<string, Record<string, T>>
+declare const Records: RecordsType<unknown>
+
+export type GetRecordsResponse = RecordsType<unknown>
 
 export const getRecords = Utils.createHandler({
   requiredTags: ["Start", "Stop"],
-  handler: (message): RecordsType => {
+  handler: (message): RecordsType<unknown> => {
     const start = parseInt(message.Tags.Start)
     const stop = parseInt(message.Tags.Stop)
 
@@ -17,6 +19,6 @@ export const getRecords = Utils.createHandler({
       .reduce((acc, [timestamp, recordsOfOneHour]) => {
         acc[timestamp] = recordsOfOneHour
         return acc
-      }, {} as RecordsType)
+      }, {} as RecordsType<unknown>)
   },
 })

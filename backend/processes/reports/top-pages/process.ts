@@ -18,9 +18,10 @@ Handlers.add(
       return urlWithoutDomain
     },
     calculateAdditionalMetrics: (record, event) => {
-      if (event["j-lt"] !== undefined) return
+      if (event["j-lt"] === undefined) return
       if (record.sumLoadingTime === undefined) record.sumLoadingTime = 0
-      record.sumLoadingTime += event["j-lt"]
+
+      record.sumLoadingTime += +event["j-lt"]
     },
   })
 )

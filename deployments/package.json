@@ -2,7 +2,8 @@
   "name": "junction",
   "main": "index.ts",
   "scripts": {
-    "deploy": "pulumi up && pulumi stack output -j > output.dev.json"
+    "deploy": "pulumi up && pulumi stack output -j > output.dev.json",
+    "destroy": "pulumi destroy"
   },
   "devDependencies": {
     "@types/node": "^20.17.12",

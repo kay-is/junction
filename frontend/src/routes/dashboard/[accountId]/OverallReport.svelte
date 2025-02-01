@@ -6,7 +6,7 @@
 
   let { records }: { records: Records } = $props()
 
-  let recordsArray = Object.entries(records)
+  let recordsArray = 
     .map(([timestamp, record]) => {
       const recordSums = Object.entries(record).reduce(
         (acc, [_, { pageViews, visitors, web3Visitors, sumLoadingTime, singleViewVisitors }]) => {

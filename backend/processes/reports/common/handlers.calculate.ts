@@ -26,17 +26,11 @@ if (Sessions === undefined) Sessions = {}
 declare var ActiveSessions: number
 if (ActiveSessions === undefined) ActiveSessions = 0
 
-type JunctionRecord = {
+export interface JunctionRecord {
   views: number
-  ethViews: number
-  solViews: number
-  arViews: number
   visitors: number
-  ethVisitors: number
-  solVisitors: number
-  arVisitors: number
   singleViewVisitors: number
-  [additionalMetricKey: string]: number | string
+  [additionalMetricKey: string]: number
 }
 
 type AggregationKey = string
@@ -57,7 +51,6 @@ type JunctionEvent = {
   co: string // Cookies enabled
   tz: string // Timezone
   ua: string // User agent
-  "j-lt": number // Loading time
   eth: string // Ethereum wallet name
   "eth-con": string // Ethereum wallet connected
   "eth-chain": string // Ethereum chain ID
@@ -66,6 +59,7 @@ type JunctionEvent = {
   ar: string // Arweave wallet name
   "ar-ver": string // Arweave wallet version
   "ar-con": string // Arweave wallet connected
+  [additionalKey: string]: string | number
 }
 // -------------------- Handler Functions --------------------
 
@@ -95,17 +89,10 @@ export const createCalculateHandler = (
       const record = loadRecord(event.ts, aggregationValue)
 
       record.views++
-      if (event.eth !== undefined) record.ethViews++
-      if (event.sol !== undefined) record.solViews++
-      if (event.ar !== undefined) record.arViews++
 
       if (!session.viewedItems[aggregationValue]) {
         session.viewedItems[aggregationValue] = true
         record.visitors++
-
-        if (event.eth !== undefined) record.ethVisitors++
-        if (event.sol !== undefined) record.solVisitors++
-        if (event.ar !== undefined) record.arVisitors++
       }
 
       if (session.firstViewTimestamp === 0) {
@@ -132,6 +119,7 @@ export const createCalculateHandler = (
       clearOldRecords()
 
       ProcessedEventCount++
+      return { NoReply: true }
     },
   })
 
@@ -140,25 +128,33 @@ export const createCalculateHandler = (
 const getHourlyTimestamp = (timestamp: number): number =>
   Math.floor(timestamp / 3600000) * 3600000
 
-const parseEvent = (message: ao.message.Received): JunctionEvent => ({
-  ad: message.Tags.ad,
-  ts: parseInt(message.Tags.ts),
-  ev: message.Tags.ev,
-  url: message.Tags.url,
-  "j-lt": parseInt(message.Tags["j-lt"]),
-  la: message.Tags.la,
-  co: message.Tags.co,
-  tz: message.Tags.tz,
-  ua: message.Tags.ua,
-  eth: message.Tags.eth,
-  "eth-con": message.Tags["eth-con"],
-  "eth-chain": message.Tags["eth-chain"],
-  sol: message.Tags.sol,
-  "sol-con": message.Tags["sol-con"],
-  ar: message.Tags.ar,
-  "ar-ver": message.Tags["ar-ver"],
-  "ar-con": message.Tags["ar-con"],
-})
+const parseEvent = (message: ao.message.Received): JunctionEvent => {
+  const event: JunctionEvent = {
+    ad: message.Tags.ad,
+    ts: parseInt(message.Tags.ts),
+    ev: message.Tags.ev,
+    url: message.Tags.url,
+    la: message.Tags.la,
+    co: message.Tags.co,
+    tz: message.Tags.tz,
+    ua: message.Tags.ua,
+    eth: message.Tags.eth,
+    "eth-con": message.Tags["eth-con"],
+    "eth-chain": message.Tags["eth-chain"],
+    sol: message.Tags.sol,
+    "sol-con": message.Tags["sol-con"],
+    ar: message.Tags.ar,
+    "ar-ver": message.Tags["ar-ver"],
+    "ar-con": message.Tags["ar-con"],
+  }
+
+  for (let [key, value] of Object.entries(message.Tags)) {
+    if (key in event) continue
+    if (key.includes("j-")) event[key] = value
+  }
+
+  return event
+}
 
 const loadSession = (event: JunctionEvent): JunctionSession => {
   let session = Sessions[event.ad]
@@ -209,13 +205,7 @@ const loadRecord = (
   if (!record) {
     record = {
       views: 0,
-      ethViews: 0,
-      solViews: 0,
-      arViews: 0,
       visitors: 0,
-      ethVisitors: 0,
-      solVisitors: 0,
-      arVisitors: 0,
       singleViewVisitors: 0,
     }
     recordsOfOneHour[aggregationValue] = record

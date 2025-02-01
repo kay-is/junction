@@ -3,6 +3,6 @@ import { minify } from "rollup-plugin-esbuild"
 
 export default defineConfig({
   input: "modules/browser.ts",
-  output: { file: "build/junction.browser.js" },
+  output: { file: "../frontend/static/libs/tracker.js" },
   plugins: [minify()],
 })

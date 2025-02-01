@@ -19,20 +19,17 @@ type AoRequest =
 
 export const request = async <ResponseData>(config: AoRequest): Promise<ResponseData> => {
   let result: Awaited<ReturnType<typeof AoConnect.dryrun>>
+  const customTags = Object.entries(config.tags || {}).map(([name, value]) => ({ name, value }))
   if (config.dryrun) {
-    console.log('[AO] Dryrun to ' + config.processId)
     result = await AoConnect.dryrun({
       process: config.processId,
-      tags: Object.entries(config.tags || {}).map(([name, value]) => ({ name, value }))
+      tags: [{ name: 'Application', value: 'Junction' }, ...customTags]
     })
   } else {
-    console.log('[AO] Message to ' + config.processId)
     const messageId = await AoConnect.message({
       process: config.processId,
       signer: AoConnect.createDataItemSigner(config.signer),
-      tags: config.tags
-        ? Object.entries(config.tags).map(([name, value]) => ({ name, value }))
-        : [],
+      tags: [{ name: 'Application', value: 'Junction' }, ...customTags],
       data: config.data ? JSON.stringify(config.data) : ''
     })
 
@@ -63,11 +60,18 @@ type AoSpawn = {
 
 export const spawn = async (config: AoSpawn) => {
   console.log('[AO] Spawning process...')
+  const spawnTags = [
+    { name: 'Application', value: 'Junction' },
+    { name: 'On-Boot', value: config.codeTxId },
+    { name: 'Authority', value: Constants.DEFAULT_AUTHORITY }
+  ]
   const customTags = Object.entries(config.tags ?? {}).map(([name, value]) => ({ name, value }))
+  const allTags = [...spawnTags, ...customTags]
+
   return await AoConnect.spawn({
     module: config.module ?? Constants.DEFAULT_MODULE,
     scheduler: config.scheduler ?? Constants.DEFAULT_SCHEDULER,
     signer: AoConnect.createDataItemSigner(config.signer),
-    tags: [{ name: 'On-Boot', value: config.codeTxId }, ...customTags]
+    tags: allTags
   })
 }

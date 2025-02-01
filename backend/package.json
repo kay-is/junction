@@ -25,11 +25,12 @@
   "license": "ISC",
   "devDependencies": {
     "@ao-tools/tstl-ao": "^0.2.5",
+    "@permaweb/aoconnect": "^0.0.63",
     "@typescript-to-lua/language-extensions": "^1.19.0",
     "concurrently": "^9.1.2",
     "lua-types": "^2.13.1",
     "typescript": "^5.7.2",
     "typescript-to-lua": "^1.28.1",
-    "wao": "^0.7.0"
+    "wao": "^0.9.2"
   }
 }

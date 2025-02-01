@@ -1,5 +1,6 @@
 import { page } from '$app/state'
 import * as AccountClient from '../clients/account'
+import * as ReportClient from '../clients/report'
 import { Report } from './report.svelte'
 import { Dispatcher } from './dispatcher.svelte'
 
@@ -9,26 +10,22 @@ export class Account {
   id = $state('')
   name = $state('')
   description = $state('')
+  owner = $state('')
   dispatcher: Dispatcher = $state(new Dispatcher(''))
   registryId = $state('')
   members: Record<string, string> = $state({})
   membersArray = $derived.by(() => Object.entries(this.members))
   reports: Record<string, Report> = $state({})
   reportsArray = $derived.by(() => Object.values(this.reports))
-  reportViews: Record<string, { name: string; reportId: string }> = $state({})
-  reportViewsArray = $derived.by(() => Object.values(this.reportViews))
   memoryUsage = $state(0)
   loading = $state(false)
 
   constructor() {
-    const infoString = localStorage.getItem('accountInfo')
+    const infoString = localStorage.getItem(`account`)
     if (infoString) {
       const account = JSON.parse(infoString)
       this.#setFields(account)
     }
-    $effect(() => {
-      if (page.params.accountId) this.load()
-    })
   }
 
   #cacheAccount = () => {
@@ -36,19 +33,21 @@ export class Account {
       Id: this.id,
       Name: this.name,
       Description: this.description,
+      Owner: this.owner,
       DispatcherId: this.dispatcher.id,
       RegistryId: this.registryId,
       Reports: Object.values(this.reports).map((r) => ({ processId: r.id, name: r.name })),
-      ReportViews: Object.values(this.reportViews),
+      ReportViews: [],
       Members: this.members,
       MemoryUsage: this.memoryUsage
     }
-    localStorage.setItem('accountInfo', JSON.stringify(info))
+    localStorage.setItem(`account`, JSON.stringify(info))
   }
 
   #setFields = (fields: Info) => {
     this.id = fields.Id
     this.name = fields.Name
+    this.owner = fields.Owner
     this.description = fields.Description
     this.registryId = fields.RegistryId
     this.members = fields.Members
@@ -81,13 +80,22 @@ export class Account {
     this.#cacheAccount()
   }
 
-  addReport = async (name: string, codeTxId: string) => {
+  addReport = async (name: string) => {
     this.loading = true
-    await AccountClient.addReport(this.id, {
-      CodeTxId: codeTxId,
-      Name: name,
-      RecordsMaxAge: '7776000000' // 90 days in ms
-    })
+    const reportId = await ReportClient.create(name)
+    this.reports[name] = new Report(reportId, name)
+    await AccountClient.addReport(this.id, name, reportId)
+    await this.dispatcher.addReport(reportId)
     this.loading = false
+    this.#cacheAccount()
+  }
+
+  removeReport = async (name: string) => {
+    this.loading = true
+    const reportId = this.reports[name].id
+    await AccountClient.removeReport(this.id, name)
+    await this.dispatcher.removeReport(reportId)
+    this.loading = false
+    this.#cacheAccount()
   }
 }

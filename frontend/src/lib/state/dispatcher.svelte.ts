@@ -14,7 +14,7 @@ export class Dispatcher {
 
   constructor(id: string) {
     this.id = id
-    const infoString = localStorage.getItem('dispatcherInfo-' + id)
+    const infoString = localStorage.getItem('dispatcher-' + id)
     if (infoString) this.#setFields(JSON.parse(infoString))
   }
 
@@ -32,6 +32,36 @@ export class Dispatcher {
     const info = await DispatcherClient.getInfo(this.id)
     this.#setFields(info)
     this.loading = false
-    localStorage.setItem('dispatcherInfo', JSON.stringify(info))
+    this.#cacheDispatcher()
+  }
+
+  #cacheDispatcher = () => {
+    localStorage.setItem(
+      'dispatcher-' + this.id,
+      JSON.stringify({
+        Id: this.id,
+        Name: this.name,
+        ReportIds: this.reportIds,
+        AssignedEventCount: this.assignedEventCount,
+        MemoryUsage: this.memoryUsage,
+        Members: this.members
+      })
+    )
+  }
+
+  addReport = async (reportId: string) => {
+    this.loading = true
+    await DispatcherClient.addReport(this.id, reportId)
+    this.reportIds.push(reportId)
+    this.loading = false
+    this.#cacheDispatcher()
+  }
+
+  removeReport = async (reportId: string) => {
+    this.loading = true
+    await DispatcherClient.removeReport(this.id, reportId)
+    this.reportIds = this.reportIds.filter((id) => id !== reportId)
+    this.loading = false
+    this.#cacheDispatcher()
   }
 }

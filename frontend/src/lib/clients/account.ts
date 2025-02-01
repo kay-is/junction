@@ -13,9 +13,9 @@ type AccountConfig = {
 export const create = async (accountConfig: AccountConfig) => {
   const codeRegistryInfo = await CodeRegistryClient.getInfo()
   return AoClient.spawn({
-    codeTxId: codeRegistryInfo.Environment['accountCodeId'],
+    codeTxId: codeRegistryInfo.CodeTxIds['account'],
     signer: appState.wallet.signer,
-    tags: accountConfig
+    tags: { ...accountConfig, ProcessType: 'Account' }
   })
 }
 
@@ -55,15 +55,14 @@ export type JunctionReportDefinition = {
   RecordsMaxAge: string
 }
 
-export const addReport = async (accountId: string, report: JunctionReportDefinition) =>
-  AoClient.request({
+export const addReport = async (accountId: string, reportName: string, reportProcessId: string) =>
+  AoClient.request<HandlerTypes.AccountAddReportResponse>({
     signer: appState.wallet.signer,
     processId: accountId,
     tags: {
-      Action: 'Add-Report',
-      CodeTxId: report.CodeTxId,
-      Name: report.Name,
-      RecordsMaxAge: report.RecordsMaxAge
+      Action: 'AddReport',
+      Name: reportName,
+      ProcessId: reportProcessId
     }
   })
 
@@ -71,5 +70,5 @@ export const removeReport = async (accountId: string, reportName: string) =>
   AoClient.request({
     signer: appState.wallet.signer,
     processId: accountId,
-    tags: { Action: 'Remove-Report', Name: reportName }
+    tags: { Action: 'RemoveReport', Name: reportName }
   })

@@ -1,25 +1,26 @@
 import * as Svelte from 'svelte'
 import { Account } from './account.svelte'
+import { DateRange } from './daterange.svelte'
 import { Registry } from './registry.svelte'
-import { Settings } from './settings.svelte'
 import { Wallet } from './wallet.svelte'
 
+export type AppState = {
+  date: DateRange
+  wallet: Wallet
+  registry: Registry
+  account: Account
+}
+
 export let appState: AppState
+
 export const init = () => {
   appState = {
-    settings: new Settings(),
+    date: new DateRange(),
     wallet: new Wallet(),
     registry: new Registry(),
     account: new Account()
   }
   return appState
-}
-
-export type AppState = {
-  settings: Settings
-  wallet: Wallet
-  registry: Registry
-  account: Account
 }
 
 const contextKey = Symbol('appState')

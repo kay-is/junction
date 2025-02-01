@@ -8,6 +8,8 @@ export interface CodeRegistryInfoResponse extends Utils.BasicInfo {
   CodeTxIds: Record<string, string>
 }
 
+export type CodeRegistryUpdateInfoResponse = CodeRegistryInfoResponse
+
 const info = Utils.createHandler({
   handler: (): CodeRegistryInfoResponse => ({
     ...Utils.getBasicInfo(),

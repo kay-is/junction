@@ -14,6 +14,9 @@ if (ReportIds === undefined) ReportIds = []
 
 export const getReportIds = () => ReportIds
 
+declare var ReceivedEventCount: number
+if (ReceivedEventCount === undefined) ReceivedEventCount = 0
+
 declare var AssignedEventCount: number
 if (AssignedEventCount === undefined) AssignedEventCount = 0
 
@@ -46,10 +49,11 @@ export const track = Utils.createHandler({
   handler: (message) => {
     if (message.Tags.ts === undefined) return { NoReply: true }
     if (message.Tags.ev === undefined) return { NoReply: true }
+    ReceivedEventCount++
     // Message will be assigned to report processes that expect the Calculate action
     message.Tags.Action = "Calculate"
     message.Tags.ad = message.From
-    if (ReportIds.length > 0) ao.send({ Target: ao.id, Tags: message.Tags })
+    for (const id of ReportIds) ao.send({ Target: id, Tags: message.Tags })
     return { NoReply: true }
   },
 })

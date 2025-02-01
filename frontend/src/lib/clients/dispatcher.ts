@@ -13,7 +13,22 @@ export const getInfo = async (id: string) =>
 export const create = async () => {
   const codeRegistryInfo = await CodeRegistryClient.getInfo()
   return AoClient.spawn({
-    codeTxId: codeRegistryInfo.Environment['dispatcherCodeId'],
-    signer: appState.wallet.signer
+    codeTxId: codeRegistryInfo.CodeTxIds['dispatcher'],
+    signer: appState.wallet.signer,
+    tags: { ProcessType: 'Dispatcher' }
   })
 }
+
+export const addReport = async (id: string, reportId: string) =>
+  AoClient.request({
+    processId: id,
+    signer: appState.wallet.signer,
+    tags: { Action: 'AddReport', ProcessId: reportId }
+  })
+
+export const removeReport = async (id: string, reportId: string) =>
+  AoClient.request({
+    processId: id,
+    signer: appState.wallet.signer,
+    tags: { Action: 'RemoveReport', ProcessId: reportId }
+  })

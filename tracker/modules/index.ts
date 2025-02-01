@@ -144,6 +144,7 @@ export default class Junction {
     const clientInfo = await this.#getClientInfo()
 
     const tags: { name: string; value: string }[] = [
+      { name: "Application", value: "Junction" },
       { name: "Action", value: "Track" },
       { name: "ts", value: "" + Date.now() },
       { name: "ev", value: eventName },

@@ -44,11 +44,18 @@ async function main() {
     junction.page({ lt: Math.ceil(loadTime) })
   })
 
-  window.addEventListener("popstate", () => junction.page())
-  window.addEventListener("pushState", () => junction.page())
-  window.addEventListener("replaceState", () => junction.page())
-  if (trackUrlHashes)
-    window.addEventListener("hashchange", () => junction.page())
+  if (trackUrlHashes) {
+    // @ts-ignore
+    window.navigation.addEventListener("navigate", () => junction.page())
+  } else {
+    let lastPath = window.location.pathname
+    // @ts-ignore
+    window.navigation.addEventListener("navigate", () => {
+      if (window.location.pathname === lastPath) return
+      lastPath = window.location.pathname
+      junction.page()
+    })
+  }
 }
 
 main()
