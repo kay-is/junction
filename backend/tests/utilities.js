@@ -1,11 +1,30 @@
 import assert from "node:assert"
 import fs from "node:fs/promises"
-import { scheduler } from "wao/test"
+import { ArMem, connect } from "wao/test"
+
+const mem = new ArMem()
+const aoconnect = connect(mem)
 
 const LOCAL_AUTHORITY = "eNaLJLsMiWCSWvQKNbk_YT-9ydeWl9lrWwXxLVp9kcg"
+const LOCAL_SCHEDULER = "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA"
+const AOS201_MODULE_TXID = "Do_Uc2Sju_ffp6Ev0AnLVdPtot15rvMjP-a9VVaA5fM"
 
-export const init = (mem, aoconnect, signer) => {
+const logDebug = (result) => {
+  const debugMessages = result.Messages.filter((m) => m.Target === "DEBUG")
+
+  if (debugMessages.length > 0)
+    debugMessages.forEach((m) => console.log(m.Data))
+
+  result.Messages = result.Messages.filter((m) => m.Target !== "DEBUG")
+}
+
+export const init = (signer) => {
   return {
+    dryrun: async (options) => {
+      const result = await aoconnect.dryrun(options)
+      logDebug(result)
+      return result
+    },
     initProcess: async (luaFilePath, tags = {}) => {
       const code = await fs.readFile(luaFilePath, "utf-8")
 
@@ -17,8 +36,8 @@ export const init = (mem, aoconnect, signer) => {
 
       const processId = await aoconnect.spawn({
         signer,
-        scheduler,
-        module: mem.modules.aos2_0_1,
+        scheduler: LOCAL_SCHEDULER,
+        module: AOS201_MODULE_TXID,
         tags: spawnTags,
         data: code,
       })
@@ -34,10 +53,14 @@ export const init = (mem, aoconnect, signer) => {
 
     messageResult: async (message) => {
       const messageId = await aoconnect.message(message)
-      return await aoconnect.result({
+      const result = await aoconnect.result({
         process: message.process,
         message: messageId,
       })
+
+      logDebug(result)
+
+      return result
     },
 
     getTag: (message, name) => message.Tags.find((tag) => tag.name === name),

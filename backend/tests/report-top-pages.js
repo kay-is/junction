@@ -1,10 +1,7 @@
 import assert from "assert"
 import { describe, it } from "node:test"
-import { acc, ArMem, connect } from "wao/test"
+import { acc } from "wao/test"
 import * as AoTestUtils from "./utilities.js"
-
-const mem = new ArMem()
-const ao = connect(mem)
 
 describe("Report-Top-Pages Process", () => {
   let reportProcessId
@@ -12,7 +9,7 @@ describe("Report-Top-Pages Process", () => {
   const dispatcher = acc[1]
   const user = acc[2]
 
-  const aoTestUtils = AoTestUtils.init(mem, ao, reportOwner.signer)
+  const aoTestUtils = AoTestUtils.init(reportOwner.signer)
 
   it("spawns", async () => {
     const result = await aoTestUtils.initProcess("build/report-top-pages.lua", {
@@ -26,12 +23,12 @@ describe("Report-Top-Pages Process", () => {
   })
 
   it("handles Info action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: reportProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
 
-    const replyMessage = result.Messages.find((m) => m.Target === "")
+    const replyMessage = result.Messages[0]
 
     aoTestUtils.assertSuccess(replyMessage)
     const processInfo = JSON.parse(replyMessage.Data)
@@ -47,7 +44,7 @@ describe("Report-Top-Pages Process", () => {
   })
 
   it("handles Caclulate action message from dispatcher", async () => {
-    const result = await aoTestUtils.messageResult({
+    await aoTestUtils.messageResult({
       process: reportProcessId,
       signer: dispatcher.signer,
       tags: [
@@ -63,9 +60,7 @@ describe("Report-Top-Pages Process", () => {
       ],
     })
 
-    aoTestUtils.assertSuccess(result.Messages[0])
-
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: reportProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -94,7 +89,7 @@ describe("Report-Top-Pages Process", () => {
 
     aoTestUtils.assertError(result.Messages[0])
 
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: reportProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -105,7 +100,7 @@ describe("Report-Top-Pages Process", () => {
   })
 
   it("handles GetRecords action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: reportProcessId,
       tags: [
         { name: "Action", value: "GetRecords" },

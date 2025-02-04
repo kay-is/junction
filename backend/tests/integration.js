@@ -1,10 +1,7 @@
 import assert from "assert"
 import { describe, it } from "node:test"
-import { acc, ArMem, connect } from "wao/test"
+import { acc } from "wao/test"
 import * as AoTestUtils from "./utilities.js"
-
-const mem = new ArMem()
-const ao = connect(mem)
 
 const NINETY_DAYS_IN_MS = 1000 * 60 * 60 * 24 * 90
 
@@ -12,7 +9,7 @@ describe("Junction", () => {
   let registryProcessId
   describe("registry owner", () => {
     const registryOwner = acc[0]
-    const aoTestUtilsRegistry = AoTestUtils.init(mem, ao, registryOwner.signer)
+    const aoTestUtilsRegistry = AoTestUtils.init(registryOwner.signer)
     it("spawns the registry", async () => {
       const result = await aoTestUtilsRegistry.initProcess("build/registry.lua")
 
@@ -28,7 +25,7 @@ describe("Junction", () => {
   let reportProcessId
   describe("account owner", () => {
     const accountOwner = acc[1]
-    const aoTestUtilsAccount = AoTestUtils.init(mem, ao, accountOwner.signer)
+    const aoTestUtilsAccount = AoTestUtils.init(accountOwner.signer)
 
     it("spawns a dispatcher", async () => {
       const result = await aoTestUtilsAccount.initProcess(
@@ -98,7 +95,7 @@ describe("Junction", () => {
       )
       aoTestUtilsAccount.assertSuccess(replyMessage)
 
-      const infoResult = await ao.dryrun({
+      const infoResult = await aoTestUtilsAccount.dryrun({
         process: dispatcherProcessId,
         tags: [{ name: "Action", value: "Info" }],
       })
@@ -125,7 +122,7 @@ describe("Junction", () => {
       )
       aoTestUtilsAccount.assertSuccess(replyMessage)
 
-      const infoResult = await ao.dryrun({
+      const infoResult = await aoTestUtilsAccount.dryrun({
         process: accountProcessId,
         tags: [{ name: "Action", value: "Info" }],
       })
@@ -140,10 +137,10 @@ describe("Junction", () => {
 
   describe("user", () => {
     const user = acc[2]
-    const aoTestUtilsUser = AoTestUtils.init(mem, ao, user.signer)
+    const aoTestUtilsUser = AoTestUtils.init(user.signer)
 
-    it("sends 3 Track messages to dispatcher", async () => {
-      const sendEvent = async () =>
+    it("sends 9 Track messages to dispatcher", async () => {
+      const sendEvent = async (url) =>
         await aoTestUtilsUser.messageResult({
           process: dispatcherProcessId,
           signer: user.signer,
@@ -152,7 +149,7 @@ describe("Junction", () => {
             { name: "ad", value: user.addr },
             { name: "ts", value: "" + Date.now() },
             { name: "ev", value: "pv" },
-            { name: "url", value: "https://example.com/" },
+            { name: "url", value: url },
             { name: "j-lt", value: "9999" },
             { name: "eth", value: "BraveWallet" },
             { name: "sol", value: "BraveWallet" },
@@ -160,33 +157,39 @@ describe("Junction", () => {
           ],
         })
 
-      await sendEvent()
-      await sendEvent()
-      await sendEvent()
+      await sendEvent("https://example.com/")
+      await sendEvent("https://example.com/")
+      await sendEvent("https://example.com/about")
+      await sendEvent("https://example.com/about")
+      await sendEvent("https://example.com/about")
+      await sendEvent("https://example.com/contact")
+      await sendEvent("https://example.com/contact")
+      await sendEvent("https://example.com/contact")
+      await sendEvent("https://example.com/contact")
 
-      const dispatcherInfoResult = await ao.dryrun({
+      const dispatcherInfoResult = await aoTestUtilsUser.dryrun({
         process: dispatcherProcessId,
         tags: [{ name: "Action", value: "Info" }],
       })
 
       aoTestUtilsUser.assertSuccess(dispatcherInfoResult.Messages[0])
       const dispatcherInfo = JSON.parse(dispatcherInfoResult.Messages[0].Data)
-      assert.equal(dispatcherInfo.AssignedEventCount, 3)
+      assert.equal(dispatcherInfo.ReceivedEventCount, 9)
 
-      const reportInfoResult = await ao.dryrun({
+      const reportInfoResult = await aoTestUtilsUser.dryrun({
         process: reportProcessId,
         tags: [{ name: "Action", value: "Info" }],
       })
 
       aoTestUtilsUser.assertSuccess(reportInfoResult.Messages[0])
       const reportInfo = JSON.parse(reportInfoResult.Messages[0].Data)
-      assert.equal(reportInfo.ProcessedEventCount, 3)
-      assert.equal(reportInfo.ActiveRecords, 1)
+      assert.equal(reportInfo.ProcessedEventCount, 9)
+      assert.equal(reportInfo.ActiveRecords, 3)
       assert.equal(reportInfo.ActiveSessions, 1)
     })
 
     it("sends GetRecord dryrun to top-pages report", async () => {
-      const result = await ao.dryrun({
+      const result = await aoTestUtilsUser.dryrun({
         process: reportProcessId,
         tags: [
           { name: "Action", value: "GetRecords" },
@@ -200,9 +203,23 @@ describe("Junction", () => {
       const records = JSON.parse(result.Messages[0].Data)
 
       const recordArray = Object.entries(records)
+
       assert.equal(recordArray.length, 1)
-      assert.equal(recordArray[0][1]["/"].views, 3)
+
+      assert.equal(recordArray[0][1]["/"].views, 2)
       assert.equal(recordArray[0][1]["/"].visitors, 1)
+      assert.equal(recordArray[0][1]["/"].entries, 1)
+      assert.equal(recordArray[0][1]["/"].exits, 0)
+
+      assert.equal(recordArray[0][1]["/about"].views, 3)
+      assert.equal(recordArray[0][1]["/about"].visitors, 1)
+      assert.equal(recordArray[0][1]["/about"].entries, 0)
+      assert.equal(recordArray[0][1]["/about"].exits, 0)
+
+      assert.equal(recordArray[0][1]["/contact"].views, 4)
+      assert.equal(recordArray[0][1]["/contact"].visitors, 1)
+      assert.equal(recordArray[0][1]["/contact"].entries, 0)
+      assert.equal(recordArray[0][1]["/contact"].exits, 1)
     })
   })
 })

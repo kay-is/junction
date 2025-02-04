@@ -1,5 +1,5 @@
-import { encode } from "json"
 import * as Utils from "../../common/utilities"
+import * as ReportUtils from "./report.utilities"
 
 // -------------------- Report State --------------------
 
@@ -12,12 +12,39 @@ if (ProcessedEventCount === undefined) ProcessedEventCount = 0
 declare var ActiveRecords: number
 if (ActiveRecords === undefined) ActiveRecords = 0
 
-type JunctionSession = {
+class JunctionSession {
   id: string
-  startedAt: number
-  viewedItems: Record<string, boolean>
-  firstViewedItem: string
-  firstViewTimestamp: number
+  viewedItems: Record<string, number>
+  sortedItems: [string, number][]
+
+  constructor(id: string) {
+    this.id = id
+    this.viewedItems = {}
+    this.sortedItems = []
+  }
+
+  addItem(name: string, timestamp: number) {
+    this.viewedItems[name] = timestamp
+    this.sortedItems = Object.entries(this.viewedItems).sort(
+      ([, a], [, b]) => a - b
+    )
+  }
+
+  get firstItem() {
+    const firstItem = this.sortedItems[0]
+    return { name: firstItem[0], timestamp: firstItem[1] }
+  }
+
+  get nextToLastItem() {
+    const nextToLastItem = this.sortedItems[this.sortedItems.length - 2]
+    if (nextToLastItem === undefined) return undefined
+    return { name: nextToLastItem[0], timestamp: nextToLastItem[1] }
+  }
+
+  get lastItem() {
+    const lastItem = this.sortedItems[this.sortedItems.length - 1]
+    return { name: lastItem[0], timestamp: lastItem[1] }
+  }
 }
 
 declare var Sessions: Record<string, JunctionSession>
@@ -42,7 +69,7 @@ export type RecordsType = Record<
 declare var Records: RecordsType
 if (Records === undefined) Records = {}
 
-type JunctionEvent = {
+export type JunctionEvent = {
   ad: string // Arweave wallet address
   ts: number // Timestamp
   ev: string // Event name
@@ -69,7 +96,8 @@ export type CreateCalculateHandlerOptions = {
   calculateAdditionalMetrics?: (
     record: JunctionRecord,
     event: JunctionEvent,
-    session: JunctionSession
+    session: JunctionSession,
+    records: RecordsType
   ) => void
 }
 export const createCalculateHandler = (
@@ -90,19 +118,17 @@ export const createCalculateHandler = (
 
       record.views++
 
-      if (!session.viewedItems[aggregationValue]) {
-        session.viewedItems[aggregationValue] = true
+      if (session.viewedItems[aggregationValue] === undefined) {
+        session.addItem(aggregationValue, event.ts)
         record.visitors++
       }
 
-      if (session.firstViewTimestamp === 0) {
-        session.firstViewTimestamp = event.ts
-        session.firstViewedItem = aggregationValue
+      const firstItem = session.firstItem
+      if (firstItem.timestamp === event.ts) {
         record.singleViewVisitors++
       } else {
-        const timestampKey = "" + getHourlyTimestamp(session.firstViewTimestamp)
-        const recordWithFirstView =
-          Records[timestampKey]?.[session.firstViewedItem]
+        const timestampKey = "" + ReportUtils.roundToHour(firstItem.timestamp)
+        const recordWithFirstView = Records[timestampKey]?.[firstItem.name]
 
         // record could be deleted if it's too old
         if (recordWithFirstView !== undefined)
@@ -113,7 +139,7 @@ export const createCalculateHandler = (
       }
 
       if (options.calculateAdditionalMetrics)
-        options.calculateAdditionalMetrics(record, event, session)
+        options.calculateAdditionalMetrics(record, event, session, Records)
 
       clearOldSessions()
       clearOldRecords()
@@ -124,9 +150,6 @@ export const createCalculateHandler = (
   })
 
 // -------------------- Utility Functions --------------------
-
-const getHourlyTimestamp = (timestamp: number): number =>
-  Math.floor(timestamp / 3600000) * 3600000
 
 const parseEvent = (message: ao.message.Received): JunctionEvent => {
   const event: JunctionEvent = {
@@ -159,13 +182,7 @@ const parseEvent = (message: ao.message.Received): JunctionEvent => {
 const loadSession = (event: JunctionEvent): JunctionSession => {
   let session = Sessions[event.ad]
   if (!session) {
-    session = {
-      id: event.ad,
-      startedAt: event.ts,
-      viewedItems: {},
-      firstViewedItem: "",
-      firstViewTimestamp: 0,
-    }
+    session = new JunctionSession(event.ad)
     Sessions[event.ad] = session
     ActiveSessions++
   }
@@ -178,21 +195,18 @@ const clearOldSessions = () => {
   const currentTimestamp = os.time()
   const oldestTimestamp = currentTimestamp - THIRTY_MINUTES_IN_MS
   for (let [sessionId, session] of Object.entries(Sessions)) {
-    if (session.startedAt < oldestTimestamp) {
+    if (session.firstItem.timestamp < oldestTimestamp) {
       delete Sessions[sessionId]
       ActiveSessions--
     }
   }
 }
 
-/**
- * The recordDimension is the dimension that we want to aggregate the data by.
- */
 const loadRecord = (
   timestamp: number,
   aggregationValue: string
 ): JunctionRecord => {
-  const hourlyTimestamp = getHourlyTimestamp(timestamp)
+  const hourlyTimestamp = ReportUtils.roundToHour(timestamp)
   const hourlyTimestampKey = "" + hourlyTimestamp
 
   let recordsOfOneHour = Records[hourlyTimestampKey]

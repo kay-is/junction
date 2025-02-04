@@ -1,10 +1,7 @@
 import assert from "assert"
 import { describe, it } from "node:test"
-import { acc, ArMem, connect } from "wao/test"
+import { acc } from "wao/test"
 import * as AoTestUtils from "./utilities.js"
-
-const mem = new ArMem()
-const ao = connect(mem)
 
 describe("Report-Devices Process", () => {
   let reportProcessId
@@ -12,7 +9,7 @@ describe("Report-Devices Process", () => {
   const dispatcher = acc[1]
   const user = acc[2]
 
-  const aoTestUtils = AoTestUtils.init(mem, ao, reportOwner.signer)
+  const aoTestUtils = AoTestUtils.init(reportOwner.signer)
 
   it("spawns", async () => {
     const result = await aoTestUtils.initProcess("build/report-devices.lua", {
@@ -31,7 +28,7 @@ describe("Report-Devices Process", () => {
       tags: [{ name: "Action", value: "Info" }],
     })
 
-    const replyMessage = result.Messages.find((m) => m.Target === "")
+    const replyMessage = result.Messages[0]
 
     aoTestUtils.assertSuccess(replyMessage)
     const processInfo = JSON.parse(replyMessage.Data)
@@ -99,7 +96,7 @@ describe("Report-Devices Process", () => {
 
     aoTestUtils.assertError(result.Messages[0])
 
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: reportProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -110,7 +107,7 @@ describe("Report-Devices Process", () => {
   })
 
   it("handles GetRecords action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: reportProcessId,
       tags: [
         { name: "Action", value: "GetRecords" },

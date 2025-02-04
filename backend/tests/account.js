@@ -1,17 +1,14 @@
 import assert from "assert"
 import { describe, it } from "node:test"
-import { acc, ArMem, connect } from "wao/test"
+import { acc } from "wao/test"
 import * as AoTestUtils from "./utilities.js"
-
-const mem = new ArMem()
-const ao = connect(mem)
 
 describe("Junction-Account Process", () => {
   let accountProcessId
   const accountOwner = acc[0]
   const user = acc[1]
 
-  const aoTestUtils = AoTestUtils.init(mem, ao, accountOwner.signer)
+  const aoTestUtils = AoTestUtils.init(accountOwner.signer)
 
   it("spawns", async () => {
     const result = await aoTestUtils.initProcess("build/account.lua", {
@@ -28,12 +25,12 @@ describe("Junction-Account Process", () => {
   })
 
   it("handles Info action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: accountProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
 
-    const replyMessage = result.Messages.find((m) => m.Target === "")
+    const replyMessage = result.Messages[0]
 
     aoTestUtils.assertSuccess(replyMessage)
     const processInfo = JSON.parse(replyMessage.Data)
@@ -42,6 +39,7 @@ describe("Junction-Account Process", () => {
     assert.equal(processInfo.Members[accountOwner.addr], "Owner")
     assert.equal(processInfo.DispatcherId, "TEST-DISPATCHER-ID")
     assert.equal(processInfo.RegistryId, "TEST-REGISTRY-ID")
+    assert.equal(processInfo.CodeTxId, "Data")
     assert.equal(processInfo.Reports.length, 0)
     assert.equal(typeof processInfo.MemoryUsage, "number")
   })
@@ -83,7 +81,7 @@ describe("Junction-Account Process", () => {
 
     aoTestUtils.assertError(replyMessage)
 
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: accountProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })

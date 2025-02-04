@@ -86,7 +86,16 @@ export type BasicInfo = {
   Members: Record<string, string>
   Owner: string
   MemoryUsage: number
+  CodeTxId: string
 }
+
+// The TX ID of the code that's currently running
+// Will be compared with the TX ID in the code-registry process to check for updates
+declare var CodeTxId: string
+if (CodeTxId === undefined) CodeTxId = ao.env.Process.Tags["On-Boot"]
+Handlers.add("CodeTxId", "Eval", (message) => {
+  CodeTxId = message.Tags.CodeTxId
+})
 
 export const getBasicInfo = (): BasicInfo => ({
   Id: ao.env.Process.Id,
@@ -94,4 +103,5 @@ export const getBasicInfo = (): BasicInfo => ({
   Members: getMembers(),
   Owner,
   MemoryUsage: collectgarbage("count"),
+  CodeTxId,
 })

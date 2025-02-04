@@ -1,10 +1,7 @@
 import assert from "assert"
 import { describe, it } from "node:test"
-import { acc, ArMem, connect } from "wao/test"
+import { acc } from "wao/test"
 import * as AoTestUtils from "./utilities.js"
-
-const mem = new ArMem()
-const ao = connect(mem)
 
 describe("Junction-Registry Process", () => {
   let registryProcessId
@@ -14,7 +11,7 @@ describe("Junction-Registry Process", () => {
   const user = acc[2]
   const accountProcess = acc[0]
 
-  const aoTestUtils = AoTestUtils.init(mem, ao, registryOwner.signer)
+  const aoTestUtils = AoTestUtils.init(registryOwner.signer)
 
   it("spawns", async () => {
     const result = await aoTestUtils.initProcess("build/registry.lua")
@@ -26,7 +23,7 @@ describe("Junction-Registry Process", () => {
   })
 
   it("handles Info action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: registryProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -57,7 +54,7 @@ describe("Junction-Registry Process", () => {
   })
 
   it("handles GetAccount action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: registryProcessId,
       tags: [
         { name: "Action", value: "GetAccount" },
@@ -73,7 +70,7 @@ describe("Junction-Registry Process", () => {
   })
 
   it("handles GetAccountList action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: registryProcessId,
       tags: [
         { name: "Action", value: "GetAccountList" },
@@ -103,7 +100,7 @@ describe("Junction-Registry Process", () => {
 
     aoTestUtils.assertSuccess(updateResult.Messages[0])
 
-    const accountListResult = await ao.dryrun({
+    const accountListResult = await aoTestUtils.dryrun({
       process: registryProcessId,
       tags: [
         { name: "Action", value: "GetAccountList" },
@@ -127,7 +124,7 @@ describe("Junction-Registry Process", () => {
 
     aoTestUtils.assertError(updateResult.Messages[0])
 
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: registryProcessId,
       tags: [
         { name: "Action", value: "GetAccountList" },
@@ -142,7 +139,7 @@ describe("Junction-Registry Process", () => {
   })
 
   it("replies with error on missing tag", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: registryProcessId,
       tags: [{ name: "Action", value: "GetAccount" }],
     })

@@ -1,17 +1,14 @@
 import assert from "assert"
 import { describe, it } from "node:test"
-import { acc, ArMem, connect } from "wao/test"
+import { acc } from "wao/test"
 import * as AoTestUtils from "./utilities.js"
-
-const mem = new ArMem()
-const ao = connect(mem)
 
 describe("Junction-Dispatcher Process", () => {
   let dispatcherProcessId
   const dispatcherOwner = acc[0]
   const user = acc[1]
 
-  const aoTestUtils = AoTestUtils.init(mem, ao, dispatcherOwner.signer)
+  const aoTestUtils = AoTestUtils.init(dispatcherOwner.signer)
 
   it("spawns", async () => {
     const result = await aoTestUtils.initProcess("build/dispatcher.lua")
@@ -23,7 +20,7 @@ describe("Junction-Dispatcher Process", () => {
   })
 
   it("handles Info action dryrun", async () => {
-    const result = await ao.dryrun({
+    const result = await aoTestUtils.dryrun({
       process: dispatcherProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -47,7 +44,7 @@ describe("Junction-Dispatcher Process", () => {
 
     aoTestUtils.assertError(addReportResult.Messages[0])
 
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: dispatcherProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -69,7 +66,7 @@ describe("Junction-Dispatcher Process", () => {
 
     aoTestUtils.assertSuccess(addReportResult.Messages[0])
 
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: dispatcherProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -91,7 +88,7 @@ describe("Junction-Dispatcher Process", () => {
 
     aoTestUtils.assertError(addReportResult.Messages[0])
 
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: dispatcherProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })
@@ -112,7 +109,7 @@ describe("Junction-Dispatcher Process", () => {
       ],
     })
 
-    assert.equal(result.Messages[0].Target, dispatcherProcessId)
+    assert.equal(result.Messages[0].Target, "TEST-REPORT-ID")
   })
 
   it("ignores Calculate action message from user", async () => {
@@ -137,7 +134,7 @@ describe("Junction-Dispatcher Process", () => {
 
     aoTestUtils.assertSuccess(addReportResult.Messages[0])
 
-    const infoResult = await ao.dryrun({
+    const infoResult = await aoTestUtils.dryrun({
       process: dispatcherProcessId,
       tags: [{ name: "Action", value: "Info" }],
     })

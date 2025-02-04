@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/TypeScriptToLua/TypeScriptToLua/master/tsconfig-schema.json",
-  "include": ["process.ts"],
+  "include": ["*.ts"],
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["ESNext"],
