@@ -1,4 +1,4 @@
-Name = "devices-report"
+Name = "networks-report"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)
@@ -15,18 +15,13 @@ Handlers.add(
   Calculate.createCalculateHandler({
     eventType: "pv",
     extractAggregationValue: (event) => {
-      if (!event.ua) return "other"
+      let networks: string[] = []
 
-      const userAgent = event.ua.toLowerCase()
+      if (event.ar !== undefined) networks.push("Arweave")
+      if (event.sol !== undefined) networks.push("Solana")
+      if (event["eth-chain"] !== undefined) networks.push(event["eth-chain"])
 
-      if (userAgent.includes("iphone")) return "iphone"
-      if (userAgent.includes("ipad")) return "ipad"
-      if (userAgent.includes("android")) return "android"
-      if (userAgent.includes("windows nt")) return "windows"
-      if (userAgent.includes("macintosh")) return "macos"
-      if (userAgent.includes("linux")) return "linux"
-
-      return "other"
+      return networks
     },
     calculateAdditionalMetrics: ({ event, record }) => {
       ReportUtils.increment(record, "sumLoadingTime", +event["j-lt"])

@@ -3,7 +3,7 @@ import { describe, it } from "node:test"
 import { acc } from "wao/test"
 import * as AoTestUtils from "./utilities.js"
 
-describe("Report-Top-Pages Process", () => {
+describe("Report-Pages Process", () => {
   let reportProcessId
   const reportOwner = acc[0]
   const dispatcher = acc[1]
@@ -12,7 +12,7 @@ describe("Report-Top-Pages Process", () => {
   const aoTestUtils = AoTestUtils.init(reportOwner.signer)
 
   it("spawns", async () => {
-    const result = await aoTestUtils.initProcess("build/report-top-pages.lua", {
+    const result = await aoTestUtils.initProcess("build/report-pages.lua", {
       DispatcherId: dispatcher.addr,
     })
 
@@ -33,7 +33,7 @@ describe("Report-Top-Pages Process", () => {
     aoTestUtils.assertSuccess(replyMessage)
     const processInfo = JSON.parse(replyMessage.Data)
     assert.equal(processInfo.Id, reportProcessId)
-    assert.equal(processInfo.Name, "top-pages")
+    assert.equal(processInfo.Name, "pages")
     assert.equal(processInfo.Owner, reportOwner.addr)
     assert.equal(processInfo.Members[reportOwner.addr], "Owner")
     assert.equal(processInfo.DispatcherId, dispatcher.addr)

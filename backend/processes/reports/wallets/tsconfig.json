@@ -15,7 +15,7 @@
   "tstl": {
     "luaTarget": "5.3",
     "luaBundleEntry": "process.ts",
-    "luaBundle": "../../../build/report-top-pages.lua",
+    "luaBundle": "../../../build/report-wallets.lua",
     "luaLibImport": "require-minimal",
     "noHeader": true
   }

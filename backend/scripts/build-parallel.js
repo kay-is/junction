@@ -3,11 +3,11 @@ import concurrently from "concurrently"
 
 const processNames = fs
   .readdirSync("processes")
-  .filter((file) => file !== "common" && file !== "reports")
+  .filter((file) => file !== ".common" && file !== "reports")
 
 const reportProcessNames = fs
   .readdirSync("processes/reports")
-  .filter((file) => file !== "common")
+  .filter((file) => file !== ".common")
   .map((file) => `reports/${file}`)
 
 const commands = [...processNames, ...reportProcessNames].map(

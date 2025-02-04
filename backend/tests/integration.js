@@ -67,7 +67,7 @@ describe("Junction", () => {
 
     it("spawns a report", async () => {
       const result = await aoTestUtilsAccount.initProcess(
-        "build/report-top-pages.lua",
+        "build/report-pages.lua",
         {
           DispatcherId: dispatcherProcessId,
           RecordsMaxAge: "" + NINETY_DAYS_IN_MS,
@@ -112,7 +112,7 @@ describe("Junction", () => {
         signer: accountOwner.signer,
         tags: [
           { name: "Action", value: "AddReport" },
-          { name: "Name", value: "top-pages" },
+          { name: "Name", value: "pages" },
           { name: "ProcessId", value: reportProcessId },
         ],
       })
@@ -130,7 +130,7 @@ describe("Junction", () => {
       aoTestUtilsAccount.assertSuccess(infoResult.Messages[0])
       const accountInfo = JSON.parse(infoResult.Messages[0].Data)
       assert.equal(accountInfo.Reports.length, 1)
-      assert.equal(accountInfo.Reports[0].name, "top-pages")
+      assert.equal(accountInfo.Reports[0].name, "pages")
       assert.equal(accountInfo.Reports[0].processId, reportProcessId)
     })
   })
@@ -188,7 +188,7 @@ describe("Junction", () => {
       assert.equal(reportInfo.ActiveSessions, 1)
     })
 
-    it("sends GetRecord dryrun to top-pages report", async () => {
+    it("sends GetRecord dryrun to pages report", async () => {
       const result = await aoTestUtilsUser.dryrun({
         process: reportProcessId,
         tags: [

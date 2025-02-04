@@ -1,4 +1,4 @@
-Name = "devices-report"
+Name = "gateways-report"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)
@@ -8,26 +8,17 @@ Handlers.add("GetRecords", "GetRecords", Records.getRecords)
 
 import * as ReportUtils from "../.common/report.utilities"
 import * as Calculate from "../.common/handlers.calculate"
+
+const extractGatewayDomain = (event: Record<"url", string>) =>
+  event.url.split("/")[2].split(".").splice(1).join(".")
+
 ao.addAssignable("Calculate", { Action: "Calculate" })
 Handlers.add(
   "Calculate",
   "Calculate",
   Calculate.createCalculateHandler({
     eventType: "pv",
-    extractAggregationValue: (event) => {
-      if (!event.ua) return "other"
-
-      const userAgent = event.ua.toLowerCase()
-
-      if (userAgent.includes("iphone")) return "iphone"
-      if (userAgent.includes("ipad")) return "ipad"
-      if (userAgent.includes("android")) return "android"
-      if (userAgent.includes("windows nt")) return "windows"
-      if (userAgent.includes("macintosh")) return "macos"
-      if (userAgent.includes("linux")) return "linux"
-
-      return "other"
-    },
+    extractAggregationValue: extractGatewayDomain,
     calculateAdditionalMetrics: ({ event, record }) => {
       ReportUtils.increment(record, "sumLoadingTime", +event["j-lt"])
     },

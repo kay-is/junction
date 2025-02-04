@@ -1,4 +1,4 @@
-Name = "devices-report"
+Name = "browsers-report"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)
@@ -19,12 +19,16 @@ Handlers.add(
 
       const userAgent = event.ua.toLowerCase()
 
-      if (userAgent.includes("iphone")) return "iphone"
-      if (userAgent.includes("ipad")) return "ipad"
-      if (userAgent.includes("android")) return "android"
-      if (userAgent.includes("windows nt")) return "windows"
-      if (userAgent.includes("macintosh")) return "macos"
-      if (userAgent.includes("linux")) return "linux"
+      if (userAgent.includes("opr/") || userAgent.includes("opera"))
+        return "opera"
+      if (userAgent.includes("edg/") || userAgent.includes("edge"))
+        return "edge"
+      if (userAgent.includes("firefox") || userAgent.includes("fxios"))
+        return "firefox"
+      if (userAgent.includes("chrome")) return "chrome"
+      if (userAgent.includes("safari")) return "safari"
+      if (userAgent.includes("trident") || userAgent.includes("msie"))
+        return "ie"
 
       return "other"
     },

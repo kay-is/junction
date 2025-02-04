@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/TypeScriptToLua/TypeScriptToLua/master/tsconfig-schema.json",
+  "include": ["*.ts"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "moduleResolution": "Node",
+    "types": [
+      "lua-types/5.3",
+      "@typescript-to-lua/language-extensions",
+      "@ao-tools/tstl-ao"
+    ],
+    "strict": true
+  },
+  "tstl": {
+    "luaTarget": "5.3",
+    "luaBundleEntry": "process.ts",
+    "luaBundle": "../../../build/report-pages.lua",
+    "luaLibImport": "require-minimal",
+    "noHeader": true
+  }
+}

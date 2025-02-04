@@ -1,7 +1,7 @@
 import * as Accounts from "./handlers.accounts"
-import * as Utils from "../common/utilities"
+import * as Utils from "../.common/utilities"
 
-Name = "Junction-Registry"
+Name = "junction-account-registry"
 
 export interface RegistryInfoResponse extends Utils.BasicInfo {
   AccountCount: number

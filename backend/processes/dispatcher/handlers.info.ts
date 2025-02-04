@@ -1,4 +1,4 @@
-import * as Utils from "../common/utilities"
+import * as Utils from "../.common/utilities"
 import * as Tracking from "./handlers.tracking"
 
 Name = "dispatcher"

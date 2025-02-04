@@ -1,27 +1,31 @@
-Name = "top-pages"
+Name = "pages-report"
 
-import * as Info from "../common/handlers.info"
+import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)
 
-import * as Records from "../common/handlers.records"
+import * as Records from "../.common/handlers.records"
 Handlers.add("GetRecords", "GetRecords", Records.getRecords)
 
-import * as ReportUtils from "../common/report.utilities"
-import * as Calculate from "../common/handlers.calculate"
+import * as ReportUtils from "../.common/report.utilities"
+import * as Calculate from "../.common/handlers.calculate"
+
+export const extractUrlPath = (event: Record<"url", string>) =>
+  "/" + event.url.split("/").splice(3).join("/")
+
 ao.addAssignable("Calculate", { Action: "Calculate" })
 Handlers.add(
   "Calculate",
   "Calculate",
   Calculate.createCalculateHandler({
     eventType: "pv",
-    extractAggregationValue: ReportUtils.extractUrlPath,
-    calculateAdditionalMetrics: (record, event, session, allRecords) => {
+    extractAggregationValue: extractUrlPath,
+    calculateAdditionalMetrics: ({ record, event, session, records }) => {
       ReportUtils.increment(record, "sumLoadingTime", +event["j-lt"])
 
       if (record.entries === undefined) record.entries = 0
       if (record.exits === undefined) record.exits = 0
 
-      const urlPath = ReportUtils.extractUrlPath(event)
+      const urlPath = extractUrlPath(event)
 
       // only count first page view as entry
       if (
@@ -43,7 +47,7 @@ Handlers.add(
             "" + ReportUtils.roundToHour(nextToLastItem.timestamp)
 
           const recordWithPreviousExit =
-            allRecords[timestampKey]?.[nextToLastItem.name]
+            records[timestampKey]?.[nextToLastItem.name]
 
           // record could be deleted if it's too old
           if (recordWithPreviousExit !== undefined)

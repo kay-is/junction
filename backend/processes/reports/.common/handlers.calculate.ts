@@ -1,4 +1,4 @@
-import * as Utils from "../../common/utilities"
+import * as Utils from "../../.common/utilities"
 import * as ReportUtils from "./report.utilities"
 
 // -------------------- Report State --------------------
@@ -90,15 +90,19 @@ export type JunctionEvent = {
 }
 // -------------------- Handler Functions --------------------
 
+type CalculateAdditionalMetricsArgs = {
+  record: JunctionRecord
+  event: JunctionEvent
+  session: JunctionSession
+  records: RecordsType
+  sessions: Record<string, JunctionSession>
+  aggregationValue: string
+}
+
 export type CreateCalculateHandlerOptions = {
   eventType: string
-  extractAggregationValue: (event: JunctionEvent) => string
-  calculateAdditionalMetrics?: (
-    record: JunctionRecord,
-    event: JunctionEvent,
-    session: JunctionSession,
-    records: RecordsType
-  ) => void
+  extractAggregationValue: (event: JunctionEvent) => string | string[]
+  calculateAdditionalMetrics?: (args: CalculateAdditionalMetricsArgs) => void
 }
 export const createCalculateHandler = (
   options: CreateCalculateHandlerOptions
@@ -113,33 +117,47 @@ export const createCalculateHandler = (
 
       const session = loadSession(event)
 
-      const aggregationValue = options.extractAggregationValue(event)
-      const record = loadRecord(event.ts, aggregationValue)
+      const oneOrMoreValues = options.extractAggregationValue(event)
+      const aggregationValues = Array.isArray(oneOrMoreValues)
+        ? oneOrMoreValues
+        : [oneOrMoreValues]
 
-      record.views++
+      // sometimes one event count for multiple aggregation values
+      for (let aggregationValue of aggregationValues) {
+        const record = loadRecord(event.ts, aggregationValue)
 
-      if (session.viewedItems[aggregationValue] === undefined) {
-        session.addItem(aggregationValue, event.ts)
-        record.visitors++
+        record.views++
+
+        if (session.viewedItems[aggregationValue] === undefined) {
+          session.addItem(aggregationValue, event.ts)
+          record.visitors++
+        }
+
+        const firstItem = session.firstItem
+        if (firstItem.timestamp === event.ts) {
+          record.singleViewVisitors++
+        } else {
+          const timestampKey = "" + ReportUtils.roundToHour(firstItem.timestamp)
+          const recordWithFirstView = Records[timestampKey]?.[firstItem.name]
+
+          // record could be deleted if it's too old
+          if (recordWithFirstView !== undefined)
+            recordWithFirstView.singleViewVisitors = Math.max(
+              recordWithFirstView.singleViewVisitors - 1,
+              0
+            )
+        }
+
+        if (options.calculateAdditionalMetrics)
+          options.calculateAdditionalMetrics({
+            record,
+            event,
+            session,
+            records: Records,
+            sessions: Sessions,
+            aggregationValue,
+          })
       }
-
-      const firstItem = session.firstItem
-      if (firstItem.timestamp === event.ts) {
-        record.singleViewVisitors++
-      } else {
-        const timestampKey = "" + ReportUtils.roundToHour(firstItem.timestamp)
-        const recordWithFirstView = Records[timestampKey]?.[firstItem.name]
-
-        // record could be deleted if it's too old
-        if (recordWithFirstView !== undefined)
-          recordWithFirstView.singleViewVisitors = Math.max(
-            recordWithFirstView.singleViewVisitors - 1,
-            0
-          )
-      }
-
-      if (options.calculateAdditionalMetrics)
-        options.calculateAdditionalMetrics(record, event, session, Records)
 
       clearOldSessions()
       clearOldRecords()

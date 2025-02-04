@@ -1,4 +1,4 @@
-Name = "devices-report"
+Name = "wallets-report"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)
@@ -15,18 +15,13 @@ Handlers.add(
   Calculate.createCalculateHandler({
     eventType: "pv",
     extractAggregationValue: (event) => {
-      if (!event.ua) return "other"
+      let wallets: string[] = []
 
-      const userAgent = event.ua.toLowerCase()
+      if (event.eth !== undefined) wallets.push("EVM")
+      if (event.sol !== undefined) wallets.push("Solana")
+      if (event.ar !== undefined) wallets.push("Arweave")
 
-      if (userAgent.includes("iphone")) return "iphone"
-      if (userAgent.includes("ipad")) return "ipad"
-      if (userAgent.includes("android")) return "android"
-      if (userAgent.includes("windows nt")) return "windows"
-      if (userAgent.includes("macintosh")) return "macos"
-      if (userAgent.includes("linux")) return "linux"
-
-      return "other"
+      return wallets
     },
     calculateAdditionalMetrics: ({ event, record }) => {
       ReportUtils.increment(record, "sumLoadingTime", +event["j-lt"])

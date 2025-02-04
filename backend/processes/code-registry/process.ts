@@ -1,4 +1,4 @@
-import * as Utils from "../common/utilities"
+import * as Utils from "../.common/utilities"
 
 Name = "code-registry"
 

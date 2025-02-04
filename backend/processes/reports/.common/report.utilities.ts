@@ -1,8 +1,5 @@
 import * as json from "json"
 
-export const extractUrlPath = (event: Record<"url", string>) =>
-  "/" + event.url.split("/").splice(3).join("/")
-
 export const increment = (
   record: Record<string, number>,
   key: string,

@@ -1,4 +1,4 @@
-import * as Utils from "../../common/utilities"
+import * as Utils from "../../.common/utilities"
 
 export type RecordsType<T> = Record<string, Record<string, T>>
 declare const Records: RecordsType<unknown>

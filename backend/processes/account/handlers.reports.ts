@@ -1,4 +1,4 @@
-import * as Utils from "../common/utilities"
+import * as Utils from "../.common/utilities"
 import * as ProcessState from "./process.state"
 
 export type AccountAddReportResponse = void

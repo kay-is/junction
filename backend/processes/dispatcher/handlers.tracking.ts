@@ -1,4 +1,4 @@
-import * as Utils from "../common/utilities"
+import * as Utils from "../.common/utilities"
 
 // holds the last 1000 event IDs
 declare var HistoricEventIds: string[]
