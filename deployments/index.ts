@@ -15,14 +15,31 @@ const dispatcherCode = new ao.ProcessCode("dispatcher-code", {
   filePath: "../backend/build/dispatcher.lua",
 })
 
-const reeportTopPagesCode = new ao.ProcessCode("report-top-pages-code", {
-  name: `report-top-pages-code-${stackName}`,
-  filePath: "../backend/build/report-top-pages.lua",
+const reportBrowsersCode = new ao.ProcessCode("report-browsers-code", {
+  name: `report-browsers-code-${stackName}`,
+  filePath: "../backend/build/report-browsers.lua",
 })
 
 const reportDevicesCode = new ao.ProcessCode("report-devices-code", {
   name: `report-devices-code-${stackName}`,
-  filePath: "../backend/build/report-top-pages.lua",
+  filePath: "../backend/build/report-devices.lua",
+})
+
+const reportGatewaysCode = new ao.ProcessCode("report-gateways-code", {
+  name: `report-gateways-code-${stackName}`,
+  filePath: "../backend/build/report-gateways.lua",
+})
+const reportNetworksCode = new ao.ProcessCode("report-networks-code", {
+  name: `report-networks-code-${stackName}`,
+  filePath: "../backend/build/report-networks.lua",
+})
+const reeportTopPagesCode = new ao.ProcessCode("report-pages-code", {
+  name: `report-pages-code-${stackName}`,
+  filePath: "../backend/build/report-pages.lua",
+})
+const reportWalletsCode = new ao.ProcessCode("report-wallets-code", {
+  name: `report-wallets-code-${stackName}`,
+  filePath: "../backend/build/report-wallets.lua",
 })
 
 // ---- Code for protected processes----
@@ -37,8 +54,12 @@ const codeRegistryProcess = new ao.Process("code-registry-process", {
   environment: {
     account: accountCode.id,
     dispatcher: dispatcherCode.id,
-    "top-pages": reeportTopPagesCode.id,
-    devices: reportDevicesCode.id
+    browsers: reportBrowsersCode.id,
+    devices: reportDevicesCode.id,
+    gateways: reportGatewaysCode.id,
+    networks: reportNetworksCode.id,
+    pages: reeportTopPagesCode.id,
+    wallets: reportWalletsCode.id,
   },
 })
 export const codeRegistryProcessId = codeRegistryProcess.id
