@@ -73,14 +73,9 @@ export default class Junction {
   #getClientInfo = async () => {
     const info = []
 
-    const canonicalLinkTag = document.querySelector('link[rel="canonical"]')
-    let url = canonicalLinkTag && canonicalLinkTag.getAttribute("href")
-
-    if (!url) {
-      url = this.#trackUrlHashes
-        ? window.location.href
-        : window.location.href.replace(/#.*$/, "")
-    }
+    const url = this.#trackUrlHashes
+      ? window.location.href
+      : window.location.href.replace(/#.*$/, "")
 
     info.push({ name: "url", value: url })
 
@@ -116,7 +111,7 @@ export default class Junction {
           ? "BraveWallet"
           : window.ethereum.isMetaMask
           ? "MetaMask"
-          : "unknown",
+          : "other",
       })
       if (window.ethereum.selectedAddress) {
         info.push({ name: "eth-con", value: "true" })
@@ -131,7 +126,7 @@ export default class Junction {
           ? "BraveWallet"
           : window.solana.isPhantom
           ? "Phantom"
-          : "unknown",
+          : "other",
       })
 
       if (window.solana.publicKey) info.push({ name: "sol-con", value: "1" })
@@ -160,6 +155,6 @@ export default class Junction {
     await message({ process: this.#dispatcherId, signer: this.#signer, tags })
   }
 
-  page = (pageData?: Record<string, string | number | boolean>) =>
-    this.track("pv", pageData)
+  page = (pageData?: Record<string, string | number>) =>
+    this.track("pv", { ...pageData, ti: document.title })
 }

@@ -238,6 +238,7 @@ const loadRecord = (
     record = {
       views: 0,
       visitors: 0,
+      visitorsPerDay: 0,
       singleViewVisitors: 0,
     }
     recordsOfOneHour[aggregationValue] = record

@@ -1,4 +1,4 @@
-Name = "browsers-report"
+Name = "report-browsers"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)

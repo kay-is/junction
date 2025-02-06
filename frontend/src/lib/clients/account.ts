@@ -1,7 +1,7 @@
-import { appState } from '../state/app.svelte'
-import * as AoClient from './ao'
-import * as CodeRegistryClient from './codeRegistry'
-import * as HandlerTypes from './handlers'
+import * as HandlerTypes from '$lib/backend.types'
+import * as AoClient from '$lib/clients/ao'
+import * as CodeRegistryClient from '$lib/clients/codeRegistry'
+import { appState } from '$lib/state/app.svelte'
 
 type AccountConfig = {
   Name: string
@@ -71,4 +71,11 @@ export const removeReport = async (accountId: string, reportName: string) =>
     signer: appState.wallet.signer,
     processId: accountId,
     tags: { Action: 'RemoveReport', Name: reportName }
+  })
+
+export const updateProcess = async (accountId: string, codeTxId: string) =>
+  AoClient.update({
+    signer: appState.wallet.signer,
+    processId: accountId,
+    codeTxId
   })

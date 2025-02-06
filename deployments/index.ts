@@ -33,7 +33,7 @@ const reportNetworksCode = new ao.ProcessCode("report-networks-code", {
   name: `report-networks-code-${stackName}`,
   filePath: "../backend/build/report-networks.lua",
 })
-const reeportTopPagesCode = new ao.ProcessCode("report-pages-code", {
+const reportPages = new ao.ProcessCode("report-pages-code", {
   name: `report-pages-code-${stackName}`,
   filePath: "../backend/build/report-pages.lua",
 })
@@ -54,12 +54,12 @@ const codeRegistryProcess = new ao.Process("code-registry-process", {
   environment: {
     account: accountCode.id,
     dispatcher: dispatcherCode.id,
-    browsers: reportBrowsersCode.id,
-    devices: reportDevicesCode.id,
-    gateways: reportGatewaysCode.id,
-    networks: reportNetworksCode.id,
-    pages: reeportTopPagesCode.id,
-    wallets: reportWalletsCode.id,
+    "report-browsers": reportBrowsersCode.id,
+    "report-devices": reportDevicesCode.id,
+    "report-gateways": reportGatewaysCode.id,
+    "report-networks": reportNetworksCode.id,
+    "report-pages": reportPages.id,
+    "report-wallets": reportWalletsCode.id,
   },
 })
 export const codeRegistryProcessId = codeRegistryProcess.id

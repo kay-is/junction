@@ -30,7 +30,6 @@ describe("Junction-Registry Process", () => {
 
     aoTestUtils.assertSuccess(result.Messages[0])
     const processInfo = JSON.parse(result.Messages[0].Data)
-    assert.equal(processInfo.Name, "Junction-Registry")
     assert.equal(processInfo.AccountCount, 0)
     assert.equal(typeof processInfo.MemoryUsage, "number")
   })

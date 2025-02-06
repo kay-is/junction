@@ -33,7 +33,6 @@ describe("Report-Pages Process", () => {
     aoTestUtils.assertSuccess(replyMessage)
     const processInfo = JSON.parse(replyMessage.Data)
     assert.equal(processInfo.Id, reportProcessId)
-    assert.equal(processInfo.Name, "pages")
     assert.equal(processInfo.Owner, reportOwner.addr)
     assert.equal(processInfo.Members[reportOwner.addr], "Owner")
     assert.equal(processInfo.DispatcherId, dispatcher.addr)

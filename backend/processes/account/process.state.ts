@@ -27,9 +27,17 @@ export const setDispatcherId = (newDispatcherId: string) => {
   DispatcherId = newDispatcherId
 }
 
+export type AvailableReports =
+  | "report-browsers"
+  | "report-devices"
+  | "report-gateways"
+  | "report-networks"
+  | "report-pages"
+  | "report-wallets"
+
 export type Report = {
   processId: string
-  name: string
+  name: AvailableReports
 }
 
 declare let Reports: Report[]

@@ -1,4 +1,4 @@
-import * as DispatcherClient from '../clients/dispatcher'
+import * as DispatcherClient from '$lib/clients/dispatcher'
 
 export type Info = Awaited<ReturnType<typeof DispatcherClient.getInfo>>
 
@@ -7,9 +7,11 @@ export class Dispatcher {
   name = $state('')
   reportIds: string[] = $state([])
   assignedEventCount = $state(0)
+  receivedEventCount = $state(0)
   memoryUsage = $state(0)
   members = $state({})
   membersArray = $derived.by(() => Object.entries(this.members))
+  codeTxId = $state('')
   loading = $state(false)
 
   constructor(id: string) {
@@ -22,9 +24,11 @@ export class Dispatcher {
     this.id = fields.Id
     this.name = fields.Name
     this.reportIds = fields.ReportIds
+    this.receivedEventCount = fields.ReceivedEventCount
     this.assignedEventCount = fields.AssignedEventCount
     this.memoryUsage = fields.MemoryUsage
     this.members = fields.Members
+    this.codeTxId = fields.CodeTxId || 'N/A'
   }
 
   load = async () => {
@@ -44,7 +48,8 @@ export class Dispatcher {
         ReportIds: this.reportIds,
         AssignedEventCount: this.assignedEventCount,
         MemoryUsage: this.memoryUsage,
-        Members: this.members
+        Members: this.members,
+        CodeTxId: this.codeTxId
       })
     )
   }
@@ -61,6 +66,14 @@ export class Dispatcher {
     this.loading = true
     await DispatcherClient.removeReport(this.id, reportId)
     this.reportIds = this.reportIds.filter((id) => id !== reportId)
+    this.loading = false
+    this.#cacheDispatcher()
+  }
+
+  updateProcess = async (codeTxId: string) => {
+    this.loading = true
+    await DispatcherClient.updateProcess(this.id, codeTxId)
+    this.codeTxId = codeTxId
     this.loading = false
     this.#cacheDispatcher()
   }

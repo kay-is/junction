@@ -1,7 +1,7 @@
-import { appState } from '../state/app.svelte'
-import * as AoClient from './ao'
-import * as CodeRegistryClient from './codeRegistry'
-import type * as HandlerTypes from './handlers'
+import * as AoClient from '$lib/clients/ao'
+import * as CodeRegistryClient from '$lib/clients/codeRegistry'
+import type * as HandlerTypes from '$lib/backend.types'
+import { appState } from '$lib/state/app.svelte'
 
 export const create = async (name: string) => {
   const codeRegistryInfo = await CodeRegistryClient.getInfo()

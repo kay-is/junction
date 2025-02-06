@@ -1,7 +1,7 @@
-import { appState } from '../state/app.svelte'
-import * as AoClient from './ao'
-import * as CodeRegistryClient from './codeRegistry'
-import * as HandlerTypes from './handlers'
+import * as HandlerTypes from '$lib/backend.types'
+import * as AoClient from '$lib/clients/ao'
+import * as CodeRegistryClient from '$lib/clients/codeRegistry'
+import { appState } from '$lib/state/app.svelte'
 
 export const getInfo = async (id: string) =>
   AoClient.request<HandlerTypes.DispatcherInfoResponse>({
@@ -31,4 +31,11 @@ export const removeReport = async (id: string, reportId: string) =>
     processId: id,
     signer: appState.wallet.signer,
     tags: { Action: 'RemoveReport', ProcessId: reportId }
+  })
+
+export const updateProcess = async (accountId: string, codeTxId: string) =>
+  AoClient.update({
+    signer: appState.wallet.signer,
+    processId: accountId,
+    codeTxId
   })

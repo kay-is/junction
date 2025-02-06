@@ -1,4 +1,4 @@
-Name = "pages-report"
+Name = "report-pages"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)

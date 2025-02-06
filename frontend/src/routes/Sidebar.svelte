@@ -12,6 +12,7 @@
   const appState = AppState.getContext()
 
   const logout = async () => {
+    localStorage.clear()
     await appState.wallet.disconnect()
     window.location.href = '/'
   }
@@ -21,7 +22,7 @@
   <Sidebar>
     <SidebarWrapper>
       <SidebarGroup>
-        <SidebarItem label="Overview" href="/dashboard/{page.params.accountId}">
+        <SidebarItem label="Dashboard" href="/{page.params.accountId}/dashboard">
           <svelte:fragment slot="icon">
             <ChartMixedOutline
               class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -38,7 +39,7 @@
           </svelte:fragment>
         </SidebarItem>
 
-        <SidebarItem label="Settings" href="/settings/{page.params.accountId}">
+        <SidebarItem label="Settings" href="/{page.params.accountId}/settings/account">
           <svelte:fragment slot="icon">
             <CogOutline
               class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"

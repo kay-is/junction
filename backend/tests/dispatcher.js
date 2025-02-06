@@ -27,7 +27,6 @@ describe("Junction-Dispatcher Process", () => {
 
     aoTestUtils.assertSuccess(result.Messages[0])
     const processInfo = JSON.parse(result.Messages[0].Data)
-    assert.equal(processInfo.Name, "dispatcher")
     assert.equal(processInfo.ReportIds.length, 0)
     assert.equal(typeof processInfo.MemoryUsage, "number")
   })

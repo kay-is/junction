@@ -1,4 +1,4 @@
-import * as ReportClient from '../clients/report'
+import * as ReportClient from '$lib/clients/report'
 
 export type Records = Awaited<ReturnType<typeof ReportClient.getRecords>>
 export type Info = Awaited<ReturnType<typeof ReportClient.getInfo>>
@@ -13,6 +13,7 @@ export class Report {
   activeSessions = $state(0)
   activeRecords = $state(0)
   dispatcherId = $state('')
+  codeTxId = $state('')
   memoryUsage = $state(0)
   loading = $state(false)
 
@@ -56,6 +57,7 @@ export class Report {
       ActiveSessions: this.activeSessions,
       DispatcherId: this.dispatcherId,
       MemoryUsage: this.memoryUsage,
+      CodeTxId: this.codeTxId,
       ActiveRecords: this.activeRecords
     }
     localStorage.setItem('report-' + info.Id, JSON.stringify(info))
@@ -69,6 +71,7 @@ export class Report {
     this.processedEventCount = fields.ProcessedEventCount
     this.activeSessions = fields.ActiveSessions
     this.dispatcherId = fields.DispatcherId
+    this.codeTxId = fields.CodeTxId
     this.memoryUsage = fields.MemoryUsage
     this.activeRecords = fields.ActiveRecords
     this.loaded = true
@@ -83,6 +86,7 @@ export class Report {
   }
 
   loadRecords = async (type: 'current' | 'reference', start: Date, stop: Date) => {
+    console.log(`[${this.name}] Loading ${type} records...`)
     this.loading = true
     const receivedRecords = await ReportClient.getRecords(this.id, +start, +stop)
     // fill in the gaps
@@ -101,5 +105,6 @@ export class Report {
       localStorage.setItem('report-records-reference-' + this.id, JSON.stringify(records))
     }
     this.loading = false
+    console.log(`[${this.name}] ${type} records loaded!`)
   }
 }

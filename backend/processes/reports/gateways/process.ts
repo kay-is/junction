@@ -1,4 +1,4 @@
-Name = "gateways-report"
+Name = "report-gateways"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)

@@ -36,6 +36,6 @@
     "lua-types": "^2.13.1",
     "typescript": "^5.7.2",
     "typescript-to-lua": "^1.30.0",
-    "wao": "^0.11.1"
+    "wao": "^0.11.2"
   }
 }

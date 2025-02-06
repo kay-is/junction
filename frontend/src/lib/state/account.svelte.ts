@@ -1,23 +1,29 @@
 import { page } from '$app/state'
-import * as AccountClient from '../clients/account'
-import * as ReportClient from '../clients/report'
-import { Report } from './report.svelte'
-import { Dispatcher } from './dispatcher.svelte'
+import type * as BackendTypes from '$lib/backend.types'
+import * as AccountClient from '$lib/clients/account'
+import * as ReportClient from '$lib/clients/report'
+import * as ReportState from '$lib/state/report.svelte'
+import * as DispatcherState from '$lib/state/dispatcher.svelte'
 
 export type Info = Awaited<ReturnType<typeof AccountClient.getInfo>>
+
+export type AccountReports = {
+  [key in BackendTypes.AvailableReports]?: ReportState.Report
+}
 
 export class Account {
   id = $state('')
   name = $state('')
   description = $state('')
   owner = $state('')
-  dispatcher: Dispatcher = $state(new Dispatcher(''))
+  dispatcher = $state(new DispatcherState.Dispatcher(''))
   registryId = $state('')
   members: Record<string, string> = $state({})
   membersArray = $derived.by(() => Object.entries(this.members))
-  reports: Record<string, Report> = $state({})
+  reports: AccountReports = $state({})
   reportsArray = $derived.by(() => Object.values(this.reports))
   memoryUsage = $state(0)
+  codeTxId = $state('')
   loading = $state(false)
 
   constructor() {
@@ -36,9 +42,13 @@ export class Account {
       Owner: this.owner,
       DispatcherId: this.dispatcher.id,
       RegistryId: this.registryId,
-      Reports: Object.values(this.reports).map((r) => ({ processId: r.id, name: r.name })),
+      Reports: Object.values(this.reports).map((r) => ({
+        processId: r.id,
+        name: r.name as BackendTypes.AvailableReports
+      })),
       ReportViews: [],
       Members: this.members,
+      CodeTxId: this.codeTxId,
       MemoryUsage: this.memoryUsage
     }
     localStorage.setItem(`account`, JSON.stringify(info))
@@ -52,11 +62,12 @@ export class Account {
     this.registryId = fields.RegistryId
     this.members = fields.Members
     this.memoryUsage = fields.MemoryUsage
+    this.codeTxId = fields.CodeTxId || 'N/A'
 
-    this.dispatcher = new Dispatcher(fields.DispatcherId)
+    this.dispatcher = new DispatcherState.Dispatcher(fields.DispatcherId)
 
     for (const report of fields.Reports)
-      this.reports[report.name] = new Report(report.processId, report.name)
+      this.reports[report.name] = new ReportState.Report(report.processId, report.name)
   }
 
   load = async () => {
@@ -80,21 +91,30 @@ export class Account {
     this.#cacheAccount()
   }
 
-  addReport = async (name: string) => {
+  addReport = async (name: BackendTypes.AvailableReports) => {
     this.loading = true
     const reportId = await ReportClient.create(name)
-    this.reports[name] = new Report(reportId, name)
+    this.reports[name] = new ReportState.Report(reportId, name)
     await AccountClient.addReport(this.id, name, reportId)
     await this.dispatcher.addReport(reportId)
     this.loading = false
     this.#cacheAccount()
   }
 
-  removeReport = async (name: string) => {
+  removeReport = async (name: BackendTypes.AvailableReports) => {
+    if (!this.reports[name]) return
     this.loading = true
     const reportId = this.reports[name].id
     await AccountClient.removeReport(this.id, name)
     await this.dispatcher.removeReport(reportId)
+    this.loading = false
+    this.#cacheAccount()
+  }
+
+  updateProcess = async (codeTxId: string) => {
+    this.loading = true
+    await AccountClient.updateProcess(this.id, codeTxId)
+    this.codeTxId = codeTxId
     this.loading = false
     this.#cacheAccount()
   }

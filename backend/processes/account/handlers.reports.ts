@@ -9,7 +9,7 @@ export const addReport = Utils.createHandler({
   handler: (message): AccountAddReportResponse => {
     ProcessState.addReport({
       processId: message.Tags.ProcessId,
-      name: message.Tags.Name,
+      name: message.Tags.Name as ProcessState.AvailableReports,
     })
 
     ao.send({

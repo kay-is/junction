@@ -1,4 +1,4 @@
-Name = "networks-report"
+Name = "report-networks"
 
 import * as Info from "../.common/handlers.info"
 Handlers.add("Info", "Info", Info.info)

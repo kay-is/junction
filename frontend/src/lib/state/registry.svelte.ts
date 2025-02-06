@@ -1,7 +1,7 @@
-import * as RegistryClient from '../clients/registry'
-import * as DispatcherClient from '../clients/dispatcher'
-import * as AccountClient from '../clients/account'
-import * as Constants from '$lib/clients/constants'
+import * as DeploymentOutput from '$lib/deployment.output'
+import * as RegistryClient from '$lib/clients/registry'
+import * as DispatcherClient from '$lib/clients/dispatcher'
+import * as AccountClient from '$lib/clients/account'
 
 export type Accounts = Awaited<ReturnType<typeof RegistryClient.getAccounts>>
 
@@ -27,7 +27,7 @@ export class Registry {
       Name,
       Description,
       DispatcherId: dispatcherId,
-      RegistryId: Constants.REGISTRY_PROCESS_ID
+      RegistryId: DeploymentOutput.REGISTRY_PROCESS_ID
     })
     const newAccount = await RegistryClient.createAccount(Name, accountId)
     this.accounts.push(newAccount)

@@ -1,5 +1,5 @@
 import * as AoConnect from '@permaweb/aoconnect'
-import * as Constants from './constants'
+import * as Constants from '$lib/clients/.constants'
 
 type AoRequest =
   | {
@@ -74,4 +74,30 @@ export const spawn = async (config: AoSpawn) => {
     signer: AoConnect.createDataItemSigner(config.signer),
     tags: allTags
   })
+}
+
+type AoUpdate = {
+  codeTxId: string
+  processId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  signer: any
+}
+
+export const update = async (config: AoUpdate) => {
+  console.log('[AO] Updating process code...')
+
+  const code = await fetch(`https://arweave.net/${config.codeTxId}`).then((res) => res.text())
+
+  const messageId = await AoConnect.message({
+    process: config.processId,
+    signer: AoConnect.createDataItemSigner(config.signer),
+    tags: [
+      { name: 'Application', value: 'Junction' },
+      { name: 'Action', value: 'Eval' },
+      { name: 'CodeTxId', value: config.codeTxId }
+    ],
+    data: code
+  })
+
+  return await AoConnect.result({ process: config.processId, message: messageId })
 }

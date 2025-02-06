@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Sidebar from '$lib/components/Sidebar.svelte'
+  import Sidebar from '../../Sidebar.svelte'
   import { Heading, P } from 'flowbite-svelte'
 </script>
 
