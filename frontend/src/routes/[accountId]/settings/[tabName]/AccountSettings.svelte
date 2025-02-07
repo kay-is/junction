@@ -65,7 +65,7 @@
         <TableBodyRow>
           <TableBodyCell>Reports ({props.account.reportsArray.length})</TableBodyCell>
           <TableBodyCell>
-            {props.account.reportsArray.map((r) => r.name.split('-')[0]).join(', ')}
+            {props.account.reportsArray.map((r) => r.name.split('-')[1]).join(', ')}
           </TableBodyCell>
         </TableBodyRow>
         <TableBodyRow>

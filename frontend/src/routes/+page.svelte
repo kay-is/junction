@@ -1,6 +1,5 @@
 <script lang="ts">
   import * as AppState from '$lib/state/app.svelte'
-  import { Section, HeroHeader } from 'flowbite-svelte-blocks'
   import {
     P,
     Button,
@@ -8,7 +7,6 @@
     Listgroup,
     ListgroupItem,
     A,
-    Badge,
     ButtonGroup,
     Input,
     Helper,
@@ -41,6 +39,10 @@
     newAccountName = ''
   }
 </script>
+
+<svelte:head>
+  <title>Junction Web Analytics</title>
+</svelte:head>
 
 <div class="flex h-screen items-center justify-center">
   <div class="text-center">

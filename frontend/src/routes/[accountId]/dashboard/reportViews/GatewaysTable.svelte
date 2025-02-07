@@ -21,14 +21,7 @@
 
   const props: TableProps = $props()
 
-  type SortableColumn =
-    | 'page'
-    | 'views'
-    | 'visitors'
-    | 'entries'
-    | 'exits'
-    | 'bounceRate'
-    | 'loadTime'
+  type SortableColumn = 'gateway' | 'views' | 'visitors' | 'bounceRate' | 'loadTime'
   let sortBy: SortableColumn = $state('views')
   let sortDirection: 'asc' | 'desc' = $state('desc')
 
@@ -37,52 +30,46 @@
       sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'
     } else {
       sortBy = column
-      sortDirection = column === 'page' ? 'asc' : 'desc'
+      sortDirection = column === 'gateway' ? 'asc' : 'desc'
     }
   }
 
-  type PageRecord = {
-    page: string
+  type GatewayRecord = {
+    gateway: string
     views: number
     visitors: number
-    entries: number
-    exits: number
     bounceRate: number
     loadTime: number
     hourlyBounceRates: number[]
     hourlyLoadTimes: number[]
   }
 
-  const aggregatePages = (
+  const aggregateGateways = (
     currentRecords: typeof props.report.currentRecordsArray,
     referenceRecords: typeof props.report.referenceRecordsArray
   ) => {
     const processRecords = (records: typeof props.report.currentRecordsArray) => {
-      const pageMap = new Map<string, PageRecord>()
+      const gatewayMap = new Map<string, GatewayRecord>()
       const validRecords = records.filter((r) => r.records && Object.keys(r.records).length > 0)
 
       validRecords.forEach((row) => {
-        Object.entries(row.records).forEach(([page, record]) => {
-          if (!pageMap.has(page)) {
-            pageMap.set(page, {
-              page,
+        Object.entries(row.records).forEach(([gateway, record]) => {
+          if (!gatewayMap.has(gateway)) {
+            gatewayMap.set(gateway, {
+              gateway,
               views: 0,
               visitors: 0,
-              entries: 0,
-              exits: 0,
               bounceRate: 0,
               loadTime: 0,
               hourlyBounceRates: [],
               hourlyLoadTimes: []
             })
           }
-          const existing = pageMap.get(page)!
+          const existing = gatewayMap.get(gateway)!
 
           // Track totals
           existing.views += record.views || 0
           existing.visitors += record.visitors || 0
-          existing.entries += record.entries || 0
-          existing.exits += record.exits || 0
 
           // Calculate hourly metrics
           const hourlyBounceRate =
@@ -95,15 +82,16 @@
         })
       })
 
-      return Array.from(pageMap.values()).map((page) => ({
-        ...page,
+      return Array.from(gatewayMap.values()).map((gateway) => ({
+        ...gateway,
         bounceRate:
-          page.hourlyBounceRates.length > 0
-            ? page.hourlyBounceRates.reduce((a, b) => a + b, 0) / page.hourlyBounceRates.length
+          gateway.hourlyBounceRates.length > 0
+            ? gateway.hourlyBounceRates.reduce((a, b) => a + b, 0) /
+              gateway.hourlyBounceRates.length
             : 0,
         loadTime:
-          page.hourlyLoadTimes.length > 0
-            ? page.hourlyLoadTimes.reduce((a, b) => a + b, 0) / page.hourlyLoadTimes.length
+          gateway.hourlyLoadTimes.length > 0
+            ? gateway.hourlyLoadTimes.reduce((a, b) => a + b, 0) / gateway.hourlyLoadTimes.length
             : 0
       }))
     }
@@ -113,11 +101,9 @@
 
     return current
       .map((curr) => {
-        const ref = reference.find((r) => r.page === curr.page) || {
+        const ref = reference.find((r) => r.gateway === curr.gateway) || {
           views: 0,
           visitors: 0,
-          entries: 0,
-          exits: 0,
           bounceRate: 0,
           loadTime: 0
         }
@@ -125,15 +111,13 @@
           ...curr,
           referenceViews: ref.views,
           referenceVisitors: ref.visitors,
-          referenceEntries: ref.entries || 0,
-          referenceExits: ref.exits || 0,
           referenceBounceRate: ref.bounceRate,
           referenceLoadTime: ref.loadTime
         }
       })
       .sort((a, b) => {
-        if (sortBy === 'page') {
-          const comparison = a.page.localeCompare(b.page)
+        if (sortBy === 'gateway') {
+          const comparison = a.gateway.localeCompare(b.gateway)
           return sortDirection === 'asc' ? comparison : -comparison
         }
 
@@ -144,15 +128,15 @@
       .slice(0, 10)
   }
 
-  const topPages = $derived(
-    aggregatePages(props.report.currentRecordsArray, props.report.referenceRecordsArray)
+  const topGateways = $derived(
+    aggregateGateways(props.report.currentRecordsArray, props.report.referenceRecordsArray)
   )
 </script>
 
-<Card class="col-span-4 max-h-[600px] min-h-40 w-full max-w-none overflow-clip">
+<Card class="col-span-3 max-h-[600px] min-h-40 w-full max-w-none overflow-clip">
   <div class="flex flex-row justify-between">
     <Heading tag="h4" class="w-fit"
-      >Top Pages {#if props.report.loading}<Spinner size="5" />{/if}</Heading
+      >Top Gateways {#if props.report.loading}<Spinner size="5" />{/if}</Heading
     >
     <div class="flex flex-row gap-5">
       <P class="text-right text-xs">
@@ -174,8 +158,8 @@
   {:else}
     <Table class="w-full">
       <TableHead>
-        <TableHeadCell onclick={() => handleSort('page')} class="cursor-pointer">
-          URL&nbsp;{#if sortBy === 'page'}<span class="ml-1"
+        <TableHeadCell onclick={() => handleSort('gateway')} class="cursor-pointer">
+          Domain&nbsp;{#if sortBy === 'gateway'}<span class="ml-1"
               >{sortDirection === 'asc' ? '↑' : '↓'}</span
             >
           {:else}<span class="ml-1">-</span>
@@ -190,20 +174,6 @@
         </TableHeadCell>
         <TableHeadCell class="cursor-pointer text-right" onclick={() => handleSort('visitors')}>
           Visitors&nbsp;{#if sortBy === 'visitors'}<span class="ml-1"
-              >{sortDirection === 'asc' ? '↑' : '↓'}</span
-            >
-          {:else}<span class="ml-1">-</span>
-          {/if}
-        </TableHeadCell>
-        <TableHeadCell class="cursor-pointer text-right" onclick={() => handleSort('entries')}>
-          Entries&nbsp;{#if sortBy === 'entries'}<span class="ml-1"
-              >{sortDirection === 'asc' ? '↑' : '↓'}</span
-            >
-          {:else}<span class="ml-1">-</span>
-          {/if}
-        </TableHeadCell>
-        <TableHeadCell class="cursor-pointer text-right" onclick={() => handleSort('exits')}>
-          Exits&nbsp;{#if sortBy === 'exits'}<span class="ml-1"
               >{sortDirection === 'asc' ? '↑' : '↓'}</span
             >
           {:else}<span class="ml-1">-</span>
@@ -225,15 +195,15 @@
         </TableHeadCell>
       </TableHead>
       <TableBody>
-        {#each topPages as page}
+        {#each topGateways as gateway}
           <TableBodyRow>
-            <TableBodyCell>{page.page}</TableBodyCell>
+            <TableBodyCell>{gateway.gateway}</TableBodyCell>
             <TableBodyCell class="text-right">
-              {page.views.toLocaleString()}
+              {gateway.views.toLocaleString()}
               <span class="trend-icon">
-                {#if page.views > page.referenceViews}
+                {#if gateway.views > gateway.referenceViews}
                   <span class="text-green-500">↑</span>
-                {:else if page.views < page.referenceViews}
+                {:else if gateway.views < gateway.referenceViews}
                   <span class="text-red-600">↓</span>
                 {:else}
                   <span class="text-gray-500">-</span>
@@ -241,11 +211,11 @@
               </span>
             </TableBodyCell>
             <TableBodyCell class="text-right">
-              {page.visitors.toLocaleString()}
+              {gateway.visitors.toLocaleString()}
               <span class="trend-icon">
-                {#if page.visitors > page.referenceVisitors}
+                {#if gateway.visitors > gateway.referenceVisitors}
                   <span class="text-green-500">↑</span>
-                {:else if page.visitors < page.referenceVisitors}
+                {:else if gateway.visitors < gateway.referenceVisitors}
                   <span class="text-red-600">↓</span>
                 {:else}
                   <span class="text-gray-500">-</span>
@@ -253,35 +223,11 @@
               </span>
             </TableBodyCell>
             <TableBodyCell class="text-right">
-              {page.entries.toLocaleString()}
+              {Math.round(gateway.bounceRate)}%
               <span class="trend-icon">
-                {#if page.entries > page.referenceEntries}
-                  <span class="text-green-500">↑</span>
-                {:else if page.entries < page.referenceEntries}
-                  <span class="text-red-600">↓</span>
-                {:else}
-                  <span class="text-gray-500">-</span>
-                {/if}
-              </span>
-            </TableBodyCell>
-            <TableBodyCell class="text-right">
-              {page.exits.toLocaleString()}
-              <span class="trend-icon">
-                {#if page.exits > page.referenceExits}
-                  <span class="text-green-500">↑</span>
-                {:else if page.exits < page.referenceExits}
-                  <span class="text-red-600">↓</span>
-                {:else}
-                  <span class="text-gray-500">-</span>
-                {/if}
-              </span>
-            </TableBodyCell>
-            <TableBodyCell class="text-right">
-              {Math.round(page.bounceRate)}%
-              <span class="trend-icon">
-                {#if page.bounceRate < page.referenceBounceRate}
+                {#if gateway.bounceRate < gateway.referenceBounceRate}
                   <span class="text-green-500">↓</span>
-                {:else if page.bounceRate < page.referenceBounceRate}
+                {:else if gateway.bounceRate < gateway.referenceBounceRate}
                   <span class="text-red-600">↑</span>
                 {:else}
                   <span class="text-gray-500">-</span>
@@ -289,11 +235,11 @@
               </span>
             </TableBodyCell>
             <TableBodyCell class="text-right">
-              {Math.round(page.loadTime)}ms
+              {Math.round(gateway.loadTime)}ms
               <span class="trend-icon">
-                {#if page.loadTime < page.referenceLoadTime}
+                {#if gateway.loadTime < gateway.referenceLoadTime}
                   <span class="text-red-600">↓</span>
-                {:else if page.loadTime < page.referenceLoadTime}
+                {:else if gateway.loadTime < gateway.referenceLoadTime}
                   <span class="text-red-600">↑</span>
                 {:else}
                   <span class="text-gray-500">-</span>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Card, Heading, Modal, P } from 'flowbite-svelte'
+  import { Card, Heading, Modal, P, Spinner } from 'flowbite-svelte'
   import Chart from 'chart.js/auto'
   import 'chartjs-adapter-date-fns'
   import type { Report } from '$lib/state/report.svelte'
@@ -110,48 +110,54 @@
               yAxisID: 'y1',
               label: 'Views',
               data: currentRecords.map((row) => ({ x: row.timestamp, y: row.views })),
-              borderColor: '#3B82F6'
+              borderColor: '#3B82F6',
+              pointRadius: 0
             },
             {
               xAxisID: 'xReference',
               yAxisID: 'y1',
               label: 'Views Ref.',
               data: referenceRecords.map((row) => ({ x: row.timestamp, y: row.views })),
-              borderColor: 'transparent',
-              backgroundColor: 'rgba(59, 130, 246, 0.3)',
-              fill: true
+              borderColor: '#3B82F6',
+              borderDash: [2, 3],
+              borderWidth: 2,
+              pointRadius: 0
             },
             {
               xAxisID: 'xCurrent',
               yAxisID: 'y1',
               label: 'Visitors',
               data: currentRecords.map((row) => ({ x: row.timestamp, y: row.visitors })),
-              borderColor: '#10B981'
+              borderColor: '#10B981',
+              pointRadius: 0
             },
             {
               xAxisID: 'xReference',
               yAxisID: 'y1',
               label: 'Visitors Ref.',
               data: referenceRecords.map((row) => ({ x: row.timestamp, y: row.visitors })),
-              backgroundColor: 'rgba(16, 185, 129, 0.3)',
-              borderColor: 'transparent',
-              fill: true
+              borderColor: '#10B981',
+              borderDash: [2, 3],
+              borderWidth: 2,
+              pointRadius: 0
             },
             {
               xAxisID: 'xCurrent',
               yAxisID: 'y2',
               label: 'Bounce Rate',
               data: currentRecords.map((row) => ({ x: row.timestamp, y: row.bounceRate / 100 })),
-              borderColor: '#F59E0B'
+              borderColor: '#F59E0B',
+              pointRadius: 0
             },
             {
               xAxisID: 'xReference',
               yAxisID: 'y2',
               label: 'Bounce Rate Ref.',
               data: referenceRecords.map((row) => ({ x: row.timestamp, y: row.bounceRate / 100 })),
-              backgroundColor: 'rgba(245, 158, 11, 0.3)',
-              borderColor: 'transparent',
-              fill: true
+              borderColor: '#F59E0B',
+              borderDash: [2, 3],
+              borderWidth: 2,
+              pointRadius: 0
             }
           ]
         },
@@ -260,7 +266,9 @@
 
 <Card class="min-h-50 col-span-4 w-full max-w-none overflow-clip">
   <div class="flex flex-row justify-between">
-    <Heading tag="h4" class="w-fit">Overall</Heading>
+    <Heading tag="h4" class="w-fit">
+      Overall {#if props.report.loading}<Spinner size="5" />{/if}
+    </Heading>
     <div class="flex flex-row gap-5">
       <P class="text-right text-xs">
         Reference Period

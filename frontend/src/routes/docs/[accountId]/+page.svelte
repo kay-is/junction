@@ -3,6 +3,10 @@
   import { Heading, P } from 'flowbite-svelte'
 </script>
 
+<svelte:head>
+  <title>Documentation - Junction</title>
+</svelte:head>
+
 <div class="flex">
   <Sidebar />
   <div class="max-w-3xl p-8">

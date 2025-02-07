@@ -38,7 +38,7 @@
               </A>
             </TableBodyCell>
           </TableBodyRow>
-          {#await report.load()}
+          {#await report.load() then}
             <TableBodyRow>
               <TableBodyCell>Dispatcher ID</TableBodyCell>
               <TableBodyCell class="font-mono">

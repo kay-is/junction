@@ -17,6 +17,10 @@
   appState.account.load()
 </script>
 
+<svelte:head>
+  <title>Settings - Junction</title>
+</svelte:head>
+
 <div class="flex">
   <Sidebar />
   <div class="container px-10 pt-5">

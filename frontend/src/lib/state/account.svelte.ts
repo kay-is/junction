@@ -22,6 +22,7 @@ export class Account {
   membersArray = $derived.by(() => Object.entries(this.members))
   reports: AccountReports = $state({})
   reportsArray = $derived.by(() => Object.values(this.reports))
+  reportsLoading = $derived.by(() => this.reportsArray.some((r) => r.loading))
   memoryUsage = $state(0)
   codeTxId = $state('')
   loading = $state(false)
