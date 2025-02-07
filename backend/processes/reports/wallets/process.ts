@@ -6,7 +6,6 @@ Handlers.add("Info", "Info", Info.info)
 import * as Records from "../.common/handlers.records"
 Handlers.add("GetRecords", "GetRecords", Records.getRecords)
 
-import * as ReportUtils from "../.common/report.utilities"
 import * as Calculate from "../.common/handlers.calculate"
 ao.addAssignable("Calculate", { Action: "Calculate" })
 Handlers.add(
@@ -20,11 +19,9 @@ Handlers.add(
       if (event.eth !== undefined) wallets.push("EVM")
       if (event.sol !== undefined) wallets.push("Solana")
       if (event.ar !== undefined) wallets.push("Arweave")
+      if (wallets.length === 0) wallets.push("Other/None")
 
       return wallets
-    },
-    calculateAdditionalMetrics: ({ event, record }) => {
-      ReportUtils.increment(record, "sumLoadingTime", +event["j-lt"])
     },
   })
 )
